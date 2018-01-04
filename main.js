@@ -26,10 +26,8 @@ var BULLET_SPEED = 6;
 var COIN_FRAME = 14
 
 var game = null;
-var player = null;
-var map = null;
-var stage = null;
-var scoreLabel = null;
+var mainScene = null;
+var clearScene = null;
 
 var PLAYER_IMAGE = "images/chara1.png";
 var MAP_IMAGE = "images/map2.png";
@@ -47,64 +45,117 @@ window.onload = function() {
     //画像の読み込み
     game.preload(ASSETS);
 
-    // スコアを表示するラベルを作成
-    scoreLabel = new Label("SCORE : 0");
-    scoreLabel.font = "16px Tahoma";
-    scoreLabel.color = "break";
-    scoreLabel.x = 10;	// X座標
-    scoreLabel.y = 5;	// Y座標
-    scoreLabel.score = 0; // スコア値。独自のプロパテイ
-
-    game.rootScene.addChild(scoreLabel);
-    game.fps = 50 // 一秒間に50回描画
+    // 一秒間に50回描画
+    game.fps = 50
 
     //ロード完了時に呼ばれる
     game.onload = function() {
-        //マップの生成
-        var scene = game.rootScene
 
-        scene.onenter = function () {
+        // タイトルシーン
+        var titleScene = setupTitleScene(game.rootScene)
 
-            // mapデータの作成
-            map = new Map(TILE_WIDTH, TILE_HEIGHT);
-            map.image = game.assets[MAP_IMAGE];
-            map.loadData(STAGE01.map);
+        titleScene.addEventListener('touchstart', function() {
+            game.pushScene(mainScene);
+        });
 
-            player = new Player();
-
-            //グループ（ステージ）の生成
-            stage = new Group();
-            stage.addChild(map);
-            setupEnemy();
-            setupCoin();
-            stage.addChild(player);
-            scene.addChild(stage);
+        // メインシーン
+        mainScene = new MainScene();
+        mainScene.onclear = function () {
+            console.log("Clear !");
+            game.pushScene(clearScene);
         }
 
-        //シーンの定期処理
-        scene.onenterframe = function () {
-
-            //ステージのXY座標の指定（カメラ）。つまるところ、ステージの背景を左側に動かしている
-            var x = Math.min((game.width  - 16) / 2 - player.x, 0);
-            var y = Math.min((game.height - 16) / 2 - player.y, 0);
-            // console.log("x: "+x+" y: "+y);
-            x = Math.max(game.width,  x + map.width) - map.width;
-            y = Math.max(game.height, y + map.height) - map.height;
-            stage.x = x;
-            stage.y = y;
-
-        }
-    };
+        // クリアーシーン
+        clearScene = new ClearScene();
+    },
 
     game.start();
 };
 
+function setupTitleScene(titleScene) {
 
-var Player = Class.create(Sprite, {
+    titleScene.backgroundColor = "#FF0000";
+    var titleMessage = new Label("Hello, Title Scene");
+    titleMessage.x = 10;
+    titleMessage.y = 10;
+
+    titleScene.addChild(titleMessage);
+
+    return titleScene;
+}
+
+var MainScene = enchant.Class.create(enchant.Scene, {
+
+    map: null,
+    stage: null,
+    scoreLabel: null,
+    player: null,
+
+    onenter: function () {
+
+        this.scoreLabel = this.setupScoreLabel();
+        this.addChild(this.scoreLabel);
+
+        //グループ（ステージ）の生成
+        this.stage = new Group();
+
+        // mapデータの作成
+        this.map = new Map(TILE_WIDTH, TILE_HEIGHT);
+        this.map.image = game.assets[MAP_IMAGE];
+        this.map.loadData(STAGE01.map);
+
+        this.player = new Player();
+        this.stage.addChild(this.map);
+        this.setupEnemy();
+        this.setupCoin();
+        this.stage.addChild(this.player);
+        this.addChild(this.stage);
+    },
+
+    onenterframe: function () {
+
+        //ステージのXY座標の指定（カメラ）。つまるところ、ステージの背景を左側に動かしている
+        var x = Math.min((game.width  - 16) / 2 - this.player.x, 0);
+        var y = Math.min((game.height - 16) / 2 - this.player.y, 0);
+        // console.log("x: "+x+" y: "+y);
+        x = Math.max(game.width,  x + this.map.width) - this.map.width;
+        y = Math.max(game.height, y + this.map.height) - this.map.height;
+        this.stage.x = x;
+        this.stage.y = y;
+    },
+
+    setupEnemy: function () {
+        this.stage.addChild(new Enemy(655,SCREEN_HEIGHT-32-32-32-32));
+    },
+
+    setupCoin: function () {
+        this.stage.addChild(new Coin(96,144));
+        this.stage.addChild(new Coin(112,144));
+        this.stage.addChild(new Coin(80,160));
+    },
+
+    setupScoreLabel: function () {
+        var scoreLabel = new Label("SCORE : 0");
+        scoreLabel.font = "16px Tahoma";
+        scoreLabel.color = "break";
+        scoreLabel.x = 10;	// X座標
+        scoreLabel.y = 5;	// Y座標
+        scoreLabel.score = 0; // スコア値。独自のプロパテイ
+        return scoreLabel;
+    }
+
+})
+
+var ClearScene = enchant.Class.create(enchant.Scene, {
+
+})
+
+var Player = enchant.Class.create(enchant.Sprite, {
 
     initialize: function () {
         Sprite.call(this, PLAYER_WIDTH, PLAYER_HEIGHT)
         this.image = game.assets[PLAYER_IMAGE];
+        this.backgroundColor =  "rgba(0, 0, 0, 0.9)";
         this.frame = 0;
         this.x = 2 * 4;
         this.y = SCREEN_HEIGHT-32-32-32-32;
@@ -116,6 +167,7 @@ var Player = Class.create(Sprite, {
             0,  0,  0,  0  //下
         ];
         this.isDrop = false;
+        this.isClear = false;
 
         this.tick = 0;
 
@@ -125,6 +177,7 @@ var Player = Class.create(Sprite, {
         // ノーマルな動きのフレーム更新処理
         this.addEventListener(Event.ENTER_FRAME, this.normal)
     },
+
 
     normal: function () {
 
@@ -141,7 +194,7 @@ var Player = Class.create(Sprite, {
             this.y -= this.gravity; // 一旦キャラクターを重力値分だけ、上に移動させる
             //console.log(this.gravity);
 
-            if (map.hitTest(this.centerX, this.top)) { // ジャンプ中に天井（障害物）にぶつかった場合、
+            if (mainScene.map.hitTest(this.centerX, this.top)) { // ジャンプ中に天井（障害物）にぶつかった場合、
 
                 this.y += this.gravity; // 上に移動した分、下に戻す
 
@@ -161,10 +214,10 @@ var Player = Class.create(Sprite, {
             //     this.y += 3;
             // }
 
-            if (!map.hitTest(this.centerX, this.bottom)) { // 地面にぶつからなかった場合、下に落ちる(食い込み防止)
+            if (!mainScene.map.hitTest(this.centerX, this.bottom)) { // 地面にぶつからなかった場合、下に落ちる(食い込み防止)
                 this.y += 1;
             }
-            if (!map.hitTest(this.centerX, this.bottom)) { // 地面にぶつからなかった場合、下に落ちる
+            if (!mainScene.map.hitTest(this.centerX, this.bottom)) { // 地面にぶつからなかった場合、下に落ちる
                 this.y += 3;
             }
         }
@@ -173,7 +226,7 @@ var Player = Class.create(Sprite, {
 
         if (input.up) {
             this.dir = DIR_UP;
-            if (map.hitTest(this.centerX, this.bottom)) { // キャラクタが地面についている場合、ジャンプさせる
+            if (mainScene.map.hitTest(this.centerX, this.bottom)) { // キャラクタが地面についている場合、ジャンプさせる
                 this.gravity = 13; // 重力値をセット
             }
         }
@@ -181,7 +234,7 @@ var Player = Class.create(Sprite, {
         //左へ移動
         if (input.left) {
             this.dir = DIR_LEFT;
-            if (!map.hitTest(this.left, this.centerY)){ //左の生涯物にぶつからなかった場合、左に移動する
+            if (!mainScene.map.hitTest(this.left, this.centerY)){ //左の生涯物にぶつからなかった場合、左に移動する
                 this.x -= 4;
             }
             this.scaleX = -1;
@@ -190,7 +243,7 @@ var Player = Class.create(Sprite, {
         //右へ移動
         if (input.right) {
             this.dir = DIR_RIGHT;
-            if (!map.hitTest(this.right-1, this.centerY)){ //右の生涯物にぶつからなかった場合、右に移動する
+            if (!mainScene.map.hitTest(this.right-1, this.centerY)){ //右の生涯物にぶつからなかった場合、右に移動する
                 this.x += 4;
             }
             this.scaleX = 1;
@@ -207,7 +260,8 @@ var Player = Class.create(Sprite, {
         }
 
         //一番右端まで到達した場合
-        if(this.x > (map.width-PLAYER_WIDTH)) {
+        if(this.x > (mainScene.map.width-PLAYER_WIDTH) && !this.isClear) {
+            this.isClear = true;
             this.clear();
         }
 
@@ -220,7 +274,7 @@ var Player = Class.create(Sprite, {
         //弾を出す
         if (game.frame % 50 === 0) {
             var bullet = new Bullet(this.centerX, this.centerY, this.scaleX);
-            stage.addChild(bullet);
+            mainScene.stage.addChild(bullet);
         }
 
         // アニメーションフレームの指定
@@ -251,9 +305,15 @@ var Player = Class.create(Sprite, {
     // Gameをクリアーした時
     clear: function () {
         this.removeEventListener(Event.ENTER_FRAME, this.normal); // 一旦Playerのフレーム更新処理を削除
+        var isOnce = true;
         this.addEventListener(Event.ENTER_FRAME, function () { //Playerのフレーム更新処理を新しく作成
-            console.log("Clear!");
-        })
+
+            if (isOnce) {
+                isOnce = false;
+                var e = new enchant.Event("clear")
+                mainScene.dispatchEvent(e)
+            }
+        }.bind(this));
     }
 
 });
@@ -278,7 +338,7 @@ var Enemy = Class.create(Sprite, {
         this.bottom = this.y+this.height;   // 下
 
         if (this.dir === DIR_RIGHT) {
-            if (map.hitTest(this.right, this.bottom - 12)) { //地面以外にぶつかった場合
+            if (mainScene.map.hitTest(this.right, this.bottom - 12)) { //地面以外にぶつかった場合
                 this.dir = DIR_LEFT;
                 this.scaleX = -1;
             } else {
@@ -286,7 +346,7 @@ var Enemy = Class.create(Sprite, {
             }
         }
         if (this.dir === DIR_LEFT) {
-            if (map.hitTest(this.left, this.bottom - 12)) { //地面以外にぶつかった場合
+            if (mainScene.map.hitTest(this.left, this.bottom - 12)) { //地面以外にぶつかった場合
                 this.dir = DIR_RIGHT;
                 this.scaleX = 1;
             } else {
@@ -294,10 +354,10 @@ var Enemy = Class.create(Sprite, {
             }
         }
 
-        if (player.intersect(this)) {
+        if (mainScene.player.intersect(this)) {
             if (!this.isIntersect) {
                 this.isIntersect = true;
-                player.death();
+                mainScene.player.death();
             }
         }
     },
@@ -323,12 +383,12 @@ var Coin = Class.create(Sprite, {
 
     onenterframe: function () {
         // console.log("x: "+this.x+" y: "+this.y);
-        if (player.x < (this.x +8)) {
-            if (player.x > (this.x -24))
-                if (player.y < this.y)
-                    if (player.y > (this.y -32)){
-                        scoreLabel.score += (10 * this.opacity);
-                        scoreLabel.text = "SCORE : " + scoreLabel.score; //スコアを加算(10点)
+        if (mainScene.player.x < (this.x +8)) {
+            if (mainScene.player.x > (this.x -24))
+                if (mainScene.player.y < this.y)
+                    if (mainScene.player.y > (this.y -32)){
+                        mainScene.scoreLabel.score += (10 * this.opacity);
+                        mainScene.scoreLabel.text = "SCORE : " + mainScene.scoreLabel.score; //スコアを加算(10点)
                         this.opacity = 0; //消す
                     }};
 
@@ -363,7 +423,7 @@ var Bullet = Class.create(Sprite, {
         }
 
         //壁にぶつかった場合
-        if (map.hitTest(this.right, this.centerY) || map.hitTest(this.left, this.centerY)) {
+        if (mainScene.map.hitTest(this.right, this.centerY) || mainScene.map.hitTest(this.left, this.centerY)) {
             this.parentNode.removeChild(this); // 削除処理
         }
 
@@ -371,13 +431,3 @@ var Bullet = Class.create(Sprite, {
 
     }
 })
-
-function setupEnemy() {
-    stage.addChild(new Enemy(655,SCREEN_HEIGHT-32-32-32-32));
-}
-
-function setupCoin() {
-    stage.addChild(new Coin(96,144));
-    stage.addChild(new Coin(112,144));
-    stage.addChild(new Coin(80,160));
-}
