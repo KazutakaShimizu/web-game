@@ -29,23 +29,32 @@ var MESSAGE_HEIGHT = 20
 var BACKGROUND_WIDTH = 1320;
 var BACKGROUND_HEIGHT = 320;
 
+var DEATH00_WIDTH = 45;
+var DEATH00_HEIGHT = 45;
+
+var DEATH01_WIDTH = 120;
+var DEATH01_HEIGHT = 120;
+
 var COIN_FRAME = 14
 
 var game = null;
 var mainScene = null;
 var clearScene = null;
 
-var PLAYER_IMAGE = "images/testkun05.png";
+var PLAYER_IMAGE = "images/testkun07.png";
 var ENEMY_IMAGE = "images/enemy05.png";
 var MAP_IMAGE = "images/map2.png";
 var ICON_IMAGE = "images/icon0.gif";
-var BACKGROUND_IMAGE = "images/bg2.png";
+var BACKGROUND_IMAGE = "images/bg3.png"
+var DEATH00_IMAGE = "images/death00.png";
+var DEATH01_IMAGE = "images/death01.png";
 var MESSAGE_IMAGE = "images/testmessage.png";
 
 var ASSETS = [
     PLAYER_IMAGE, MAP_IMAGE,
     ICON_IMAGE, BACKGROUND_IMAGE,
-    MESSAGE_IMAGE, ENEMY_IMAGE
+    MESSAGE_IMAGE, ENEMY_IMAGE,
+    DEATH00_IMAGE,DEATH01_IMAGE,
 ];
 
 window.onload = function() {
@@ -73,6 +82,11 @@ window.onload = function() {
         mainScene.onclear = function () {
             console.log("Clear !");
             game.pushScene(clearScene);
+        }
+
+        mainScene.onGameOver = function () {
+            console.log("GameOver !");
+            game.popScene();
         }
 
         // クリアーシーン
@@ -172,8 +186,10 @@ var Player = enchant.Class.create(enchant.Sprite, {
     initialize: function () {
         Sprite.call(this, PLAYER_WIDTH, PLAYER_HEIGHT)
         this.image = game.assets[PLAYER_IMAGE];
-        // this.backgroundColor =  "rgba(0, 0, 0, 0.9)";
+        // this.backgroundColor =  "rgba(0, 0, 0, 1)";
         this.frame = 0;
+        this.scaleX *= 1;
+        this.scaleY *= 1;
         this.x = 2 * 4;
         this.y = SCREEN_HEIGHT-32-32-32-32;
         this.dir   = DIR_DOWN;
@@ -185,6 +201,7 @@ var Player = enchant.Class.create(enchant.Sprite, {
         ];
         this.isDrop = false;
         this.isClear = false;
+        this.isDeath = false;
 
         this.tick = 0;
 
@@ -201,7 +218,7 @@ var Player = enchant.Class.create(enchant.Sprite, {
         //落下
         this.left  = this.x;               // 左
         this.right = this.x+this.width;    // 右
-        this.top   = this.y;               // 上
+        this.top   = this.y;// 上
         this.bottom = this.y+this.height;   // 下
         this.centerX = this.left + (PLAYER_WIDTH/2)
         this.centerY = this.top + (PLAYER_HEIGHT/2)
@@ -310,22 +327,63 @@ var Player = enchant.Class.create(enchant.Sprite, {
         // console.log("tick: "+this.tick+" tick%4:", this.tick%4);
     },
 
+    showDeath00: function () {
+        if (!this.isDeath) {
+            this.isDeath = true;
+
+            this.removeEventListener(Event.ENTER_FRAME, this.showDeath00);
+            var death00 = new Sprite(DEATH00_WIDTH, DEATH00_HEIGHT);
+            death00.image = game.assets[DEATH00_IMAGE];
+            death00.x = this.x;
+            death00.y = this.y;
+            var isf = true;
+            console.log("oonce");
+            death00.addEventListener(Event.ENTER_FRAME, function () {
+                if (isf && game.frame % 30 === 0) {
+                    isf = false;
+                    console.log("pass");
+                    this.remove(death00);
+                    var death01 = new Sprite(DEATH01_WIDTH, DEATH01_HEIGHT);
+                    death01.image = game.assets[DEATH01_IMAGE];
+                    death01.x = death00.x;
+                    death01.y = death00.y;
+                    var isf1 = true;
+                    death01.addEventListener(Event.ENTER_FRAME, function () {
+                        if (isf1 && game.frame % 40 === 0) {
+                            isf1 = false;
+                            var e = new enchant.Event("GameOver")
+                            mainScene.dispatchEvent(e)
+                        }
+                    })
+                    // mainScene.stage.addChild(death01);
+                }
+            })
+            mainScene.stage.addChild(death00);
+        }
+    },
+
     // 敵にぶつかった時
     death: function () {
         this.removeEventListener(Event.ENTER_FRAME, this.normal); // 一旦Playerのフレーム更新処理を削除
         var v = 1;
         var tick = 0;
-        this.frame = 3;
+        var isOnce = true;
+        this.frame = 5;
         this.moveTo(this.x, SCREEN_HEIGHT/2);
 
-        this.addEventListener(Event.ENTER_FRAME, function () { //Playerのフレーム更新処理を新しく作成
-            if (tick % 3 === 0 && v < 4) {
-                v++;
-                this.scale(v, v);
-            }
-            tick++;
-        })
+        this.addEventListener(Event.ENTER_FRAME, this.showDeath00)
     },
+
+    // v++;
+    // if (tick % 3 === 0 && v < 3) {
+    //
+    //     this.scale(v, v);
+    // } else if (v > 50 && isOnce) {
+    //     isOnce = false;
+    //     var e = new enchant.Event("GameOver")
+    //     mainScene.dispatchEvent(e)
+    // }
+    // tick++;
 
     // Gameをクリアーした時
     clear: function () {
@@ -476,6 +534,27 @@ var Enemy2 = Class.create(Sprite, {
 
 })
 
+var ScoreUpLabel = Class.create(enchant.ui.MutableText, {
+
+    initialize: function (score) {
+        MutableText.call(this);
+
+        this.text = '+' + score;
+        this.time = 0;
+    },
+
+    onenterframe: function () {
+        this.y -= 0.1;
+        this.opacity = 1.0 - (this.time/30)
+
+        if (this.time > 30) {
+            this.parentNode.removeChild(this)
+        }
+
+        this.time += 1;
+    }
+})
+
 var Coin = Class.create(Sprite, {
 
     initialize: function (x, y) {
@@ -494,6 +573,9 @@ var Coin = Class.create(Sprite, {
             if (mainScene.player.x > (this.x -24))
                 if (mainScene.player.y < this.y)
                     if (mainScene.player.y > (this.y -32)){
+                        var label = new ScoreUpLabel(100)
+                        label.moveTo(this.x, this.y)
+                        mainScene.stage.addChild(label);
                         // mainScene.scoreLabel.score += (10 * this.opacity);
                         // mainScene.scoreLabel.text = "SCORE : " + mainScene.scoreLabel.score; //スコアを加算(10点)
                         this.opacity = 0; //消す
@@ -555,3 +637,15 @@ function createVoiceBullet(text, x, y) {
 
     return bullet;
 }
+
+
+
+
+
+
+
+
+
+
+
+
