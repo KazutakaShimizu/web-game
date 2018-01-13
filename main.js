@@ -63,11 +63,9 @@ window.onload = function() {
 
         // タイトルシーン
         var titleScene = setupTitleScene(game.rootScene)
-
         titleScene.addEventListener('touchstart', function() {
             game.pushScene(mainScene);
         });
-
         // メインシーン
         mainScene = new MainScene();
         mainScene.onclear = function () {
@@ -102,7 +100,6 @@ var MainScene = enchant.Class.create(enchant.Scene, {
     player: null,
 
     onenter: function () {
-
         var background = new Sprite(BACKGROUND_WIDTH,BACKGROUND_HEIGHT)
         background.image = game.assets[BACKGROUND_IMAGE]
         background.moveTo(0,-65);
@@ -114,9 +111,10 @@ var MainScene = enchant.Class.create(enchant.Scene, {
         // mapデータの作成
         this.map = new Map(TILE_WIDTH, TILE_HEIGHT);
         this.map.image = game.assets[MAP_IMAGE];
-        this.map.loadData(STAGE01.map);
+        this.map.loadData(STAGE.map);
         this.scoreLabel = this.setupScoreLabel();
 
+        // Playerデータの作成
         this.player = new Player();
         this.stage.addChild(background)
         this.stage.addChild(this.map);
@@ -128,7 +126,6 @@ var MainScene = enchant.Class.create(enchant.Scene, {
     },
 
     onenterframe: function () {
-
         //ステージのXY座標の指定（カメラ）。つまるところ、ステージの背景を左側に動かしている
         var x = Math.min((game.width  - 16) / 2 - this.player.x, 0);
         var y = Math.min((game.height - 16) / 2 - this.player.y, 0);
@@ -197,7 +194,6 @@ var Player = enchant.Class.create(enchant.Sprite, {
 
 
     normal: function () {
-
         //落下
         this.left  = this.x;               // 左
         this.right = this.x+this.width;    // 右
@@ -297,7 +293,7 @@ var Player = enchant.Class.create(enchant.Sprite, {
 
         // ラベルアニメーション
         mainScene.scoreLabel.score = mainScene.map.width - this.x - 28;
-        mainScene.scoreLabel.text = "ゴールまで : " + mainScene.scoreLabel.score; //スコアを加算(10点)
+        mainScene.scoreLabel.text = "天竺まであと : " + mainScene.scoreLabel.score + "km"; //スコアを加算(10点)
 
 
         // アニメーションフレームの指定
