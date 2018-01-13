@@ -41,8 +41,8 @@ var game = null;
 var mainScene = null;
 var clearScene = null;
 
-var PLAYER_IMAGE = "images/testkun07.png";
-var ENEMY_IMAGE = "images/enemy05.png";
+var PLAYER_IMAGE = "images/testkun09.png";
+var ENEMY_IMAGE = "images/enemy06.png";
 var MAP_IMAGE = "images/map2.png";
 var ICON_IMAGE = "images/icon0.gif";
 var BACKGROUND_IMAGE = "images/bg3.png"
@@ -241,7 +241,6 @@ var Player = enchant.Class.create(enchant.Sprite, {
                 this.gravity = 0; // 天井にぶつかり、すぐ落下させる必要があるので、強制的に重力値を0にする
 
             } else {
-
                 this.gravity--; // 0になるまで上昇させる
             }
         }
@@ -300,7 +299,7 @@ var Player = enchant.Class.create(enchant.Sprite, {
         }
 
         //一番右端まで到達した場合
-        if(this.x > (mainScene.map.width-PLAYER_WIDTH) && !this.isClear) {
+        if(this.x > (mainScene.map.width-PLAYER_WIDTH*3) && !this.isClear) {
             this.isClear = true;
             this.clear();
         }
@@ -342,27 +341,28 @@ var Player = enchant.Class.create(enchant.Sprite, {
             death00.image = game.assets[DEATH00_IMAGE];
             death00.x = this.x;
             death00.y = this.y;
+            var tick = 1;
             var isf = true;
-            console.log("oonce");
+            mainScene.player.moveTo(0, 400);
             death00.addEventListener(Event.ENTER_FRAME, function () {
-                if (isf && game.frame % 30 === 0) {
+                if (isf && tick % 40 === 0) {
                     isf = false;
-                    console.log("pass");
-                    this.remove(death00);
+                    this.remove(death00)
                     var death01 = new Sprite(DEATH01_WIDTH, DEATH01_HEIGHT);
                     death01.image = game.assets[DEATH01_IMAGE];
-                    death01.x = death00.x;
-                    death01.y = death00.y;
+                    death01.x = death00.x-50;
+                    death01.y = death00.y-50;
                     var isf1 = true;
                     death01.addEventListener(Event.ENTER_FRAME, function () {
-                        if (isf1 && game.frame % 40 === 0) {
+                        if (isf1 && game.frame % 100 === 0) {
                             isf1 = false;
                             var e = new enchant.Event("GameOver")
                             mainScene.dispatchEvent(e)
                         }
                     })
-                    // mainScene.stage.addChild(death01);
+                    mainScene.stage.addChild(death01);
                 }
+                tick++;
             })
             mainScene.stage.addChild(death00);
         }
@@ -371,12 +371,7 @@ var Player = enchant.Class.create(enchant.Sprite, {
     // 敵にぶつかった時
     death: function () {
         this.removeEventListener(Event.ENTER_FRAME, this.normal); // 一旦Playerのフレーム更新処理を削除
-        var v = 1;
-        var tick = 0;
-        var isOnce = true;
-        this.frame = 5;
         this.moveTo(this.x, SCREEN_HEIGHT/2);
-
         this.addEventListener(Event.ENTER_FRAME, this.showDeath00)
     },
 
@@ -395,6 +390,7 @@ var Player = enchant.Class.create(enchant.Sprite, {
     clear: function () {
         this.removeEventListener(Event.ENTER_FRAME, this.normal); // 一旦Playerのフレーム更新処理を削除
         var isOnce = true;
+        var tick = 1;
         this.addEventListener(Event.ENTER_FRAME, function () { //Playerのフレーム更新処理を新しく作成
 
             if (isOnce) {
@@ -402,6 +398,14 @@ var Player = enchant.Class.create(enchant.Sprite, {
                 var e = new enchant.Event("clear")
                 mainScene.dispatchEvent(e)
             }
+
+            if (tick) {
+
+            }
+
+            tick++;
+
+
         }.bind(this));
     }
 
@@ -550,7 +554,7 @@ var ScoreUpLabel = Class.create(enchant.ui.MutableText, {
         this.opacity = 1.0 - (this.time/30)
 
         if (this.time > 30) {
-            this.parentNode.removeChild(this)
+            this.parentNode.Child(this)
         }
 
         this.time += 1;
