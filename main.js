@@ -69,7 +69,6 @@ window.onload = function() {
 
     //ロード完了時に呼ばれる
     game.onload = function() {
-
         // タイトルシーン
         var titleScene = setupTitleScene(game.rootScene)
         titleScene.addEventListener('touchstart', function() {
@@ -121,7 +120,6 @@ var MainScene = enchant.Class.create(enchant.Scene, {
 
         //グループ（ステージ）の生成
         this.stage = new Group();
-
         // mapデータの作成
         this.map = new Map(TILE_WIDTH, TILE_HEIGHT);
         this.map.image = game.assets[MAP_IMAGE];
@@ -151,8 +149,20 @@ var MainScene = enchant.Class.create(enchant.Scene, {
     },
 
     setupEnemy: function () {
-        this.stage.addChild(new Enemy1(300,SCREEN_HEIGHT-32-32-32-32));
-        this.stage.addChild(new Enemy1(800,SCREEN_HEIGHT-32-32-32-32));
+        this.stage.addChild(new Enemy1(900,SCREEN_HEIGHT-32-32-32-32-10));
+        this.stage.addChild(new Enemy2(1100,SCREEN_HEIGHT-32-32-32-32));
+        this.stage.addChild(new Enemy2(1400,SCREEN_HEIGHT-32-32-32-32));
+        this.stage.addChild(new Enemy1(1700,SCREEN_HEIGHT-32-32-32-32-10));
+        this.stage.addChild(new Enemy2(1800,SCREEN_HEIGHT-32-32-32-32));
+        this.stage.addChild(new Enemy2(2000,SCREEN_HEIGHT-32-32-32-32));
+        this.stage.addChild(new Enemy1(2500,SCREEN_HEIGHT-32-32-32-32-10));
+        this.stage.addChild(new Enemy1(3000,SCREEN_HEIGHT-32-32-32-32-10));
+        this.stage.addChild(new Enemy1(3100,SCREEN_HEIGHT-32-32-32-32-10));
+        this.stage.addChild(new Enemy2(3200,SCREEN_HEIGHT-32-32-32-32));
+        this.stage.addChild(new Enemy2(3500,SCREEN_HEIGHT-32-32-32-32));
+        this.stage.addChild(new Enemy2(3800,SCREEN_HEIGHT-32-32-32-32));
+        this.stage.addChild(new Enemy2(3900,SCREEN_HEIGHT-32-32-32-32));
+
     },
 
     setupCoin: function () {
@@ -474,9 +484,7 @@ var Enemy1 = Class.create(Sprite, {
     // 弾が当たった場合
     onhit: function () {
         console.log("hoge");
-
     }
-
 })
 
 var Enemy2 = Class.create(Sprite, {
@@ -488,24 +496,15 @@ var Enemy2 = Class.create(Sprite, {
         this.image = game.assets[ENEMY_IMAGE];
         this.frame = 0;
         this.dir = DIR_LEFT;
+        this.scaleX = -1;
         this.isIntersect = false;
     },
 
     onenterframe: function () {
-
         this.left = this.x;               // 左
         this.right = this.x + this.width;    // 右
         this.top   = this.y;               // 上
         this.bottom = this.y+this.height;   // 下
-
-        if (this.dir === DIR_RIGHT) {
-            if (mainScene.map.hitTest(this.right, this.bottom - 12)) { //地面以外にぶつかった場合
-                this.dir = DIR_LEFT;
-                this.scaleX = -1;
-            } else {
-                this.x += 1;
-            }
-        }
         if (this.dir === DIR_LEFT) {
             if (mainScene.map.hitTest(this.left, this.bottom - 12)) { //地面以外にぶつかった場合
                 this.dir = DIR_RIGHT;
@@ -514,7 +513,14 @@ var Enemy2 = Class.create(Sprite, {
                 this.x -= 1;
             }
         }
-
+        if (this.dir === DIR_RIGHT) {
+            if (mainScene.map.hitTest(this.right, this.bottom - 12)) { //地面以外にぶつかった場合
+                this.dir = DIR_LEFT;
+                this.scaleX = -1;
+            } else {
+                this.x += 1;
+            }
+        }
         if (mainScene.player.intersect(this)) {
             if (!this.isIntersect) {
                 this.isIntersect = true;
