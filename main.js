@@ -125,7 +125,8 @@ var MainScene = enchant.Class.create(enchant.Scene, {
     },
 
     setupEnemy: function () {
-        this.stage.addChild(new Enemy(655,SCREEN_HEIGHT-32-32-32-32));
+        this.stage.addChild(new Enemy1(300,SCREEN_HEIGHT-32-32-32-32));
+        this.stage.addChild(new Enemy1(800,SCREEN_HEIGHT-32-32-32-32));
     },
 
     setupCoin: function () {
@@ -318,7 +319,89 @@ var Player = enchant.Class.create(enchant.Sprite, {
 
 });
 
-var Enemy = Class.create(Sprite, {
+var Enemy1 = Class.create(Sprite, {
+    // 出現させる座標を引数にとってる
+    initialize: function (x, y) {
+        Sprite.call(this, ENEMY_WIDTH, ENEMY_HEIGHT)
+        this.x = x;
+        this.y = y;
+        this.image = game.assets[PLAYER_IMAGE];
+        this.frame = 0;
+        this.dir = DIR_LEFT;
+        this.scaleX = -1;
+        this.isUp = true;
+        this.isLeft = true
+        this.isIntersect = false;
+    },
+
+    // フレームを描画する時に呼ばれるメソッド
+    onenterframe: function () {
+        this.left = this.x;               // キャラクターの左端
+        this.right = this.x+this.width;    // 右
+        this.top   = this.y;               // 上
+        this.bottom = this.y+this.height;   // 下
+
+        // 上下動の制御
+        if (!this.isUp) {
+            if (mainScene.map.hitTest(this.right, this.bottom)) {
+                this.isUp = true;
+            }
+        }
+        if (this.isUp) {
+            if (mainScene.map.hitTest(this.right, this.top) || game.frame % 50 === 0) {
+                this.isUp = false;
+            }
+        }        // 左右移動の制御
+        if (this.dir === DIR_LEFT) {
+            if (mainScene.map.hitTest(this.left, this.bottom - 12)) { //地面以外にぶつかった場合
+                this.dir = DIR_RIGHT;
+                this.scaleX = 1;
+                this.isLeft = false;
+            }
+        }
+        if (this.dir === DIR_RIGHT) {
+            if (mainScene.map.hitTest(this.right, this.bottom - 12)) { //地面以外にぶつかった場合
+                this.dir = DIR_LEFT;
+                this.scaleX = -1;
+                this.isLeft = true;
+            }
+        }
+
+        if (this.isLeft) {
+            if (this.isUp) {
+                this.x -= 1;
+                this.y -= 1;            
+            }else{
+                this.x -= 1;
+                this.y += 1;
+            }
+        }else{
+            if (this.isUp) {
+                this.x += 1;
+                this.y -= 1;            
+            }else{
+                this.x += 1;
+                this.y += 1;
+            }
+        }
+
+        if (mainScene.player.intersect(this)) {
+            if (!this.isIntersect) {
+                this.isIntersect = true;
+                mainScene.player.death();
+            }
+        }
+    },
+
+    // 弾が当たった場合
+    onhit: function () {
+        console.log("hoge");
+
+    }
+
+})
+
+var Enemy2 = Class.create(Sprite, {
 
     initialize: function (x, y) {
         Sprite.call(this, ENEMY_WIDTH, ENEMY_HEIGHT)
