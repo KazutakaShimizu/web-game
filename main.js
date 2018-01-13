@@ -8,11 +8,11 @@ var DIR_DOWN  = 3;
 var SCREEN_WIDTH = 640
 var SCREEN_HEIGHT = 320
 
-var PLAYER_WIDTH = 32
-var PLAYER_HEIGHT = 32
+var PLAYER_WIDTH = 30
+var PLAYER_HEIGHT = 30
 
-var ENEMY_WIDTH = 32
-var ENEMY_HEIGHT = 32
+var ENEMY_WIDTH = 30
+var ENEMY_HEIGHT = 30
 
 var TILE_WIDTH = 16
 var TILE_HEIGHT = 16
@@ -23,19 +23,23 @@ var BULLET_WIDTH = 8;
 var BULLET_HEIGHT = 8;
 var BULLET_SPEED = 6;
 
+var BACKGROUND_WIDTH = 1320;
+var BACKGROUND_HEIGHT = 320;
+
 var COIN_FRAME = 14
 
 var game = null;
 var mainScene = null;
 var clearScene = null;
 
-var PLAYER_IMAGE = "images/chara1.png";
+var PLAYER_IMAGE = "images/testkun03.png";
 var MAP_IMAGE = "images/map2.png";
 var ICON_IMAGE = "images/icon0.gif";
+var BACKGROUND_IMAGE = "images/bg1.png";
 
 var ASSETS = [
     PLAYER_IMAGE, MAP_IMAGE,
-    ICON_IMAGE
+    ICON_IMAGE, BACKGROUND_IMAGE
 ];
 
 window.onload = function() {
@@ -93,6 +97,11 @@ var MainScene = enchant.Class.create(enchant.Scene, {
 
     onenter: function () {
 
+        var background = new Sprite(BACKGROUND_WIDTH,BACKGROUND_HEIGHT)
+        background.image = game.assets[BACKGROUND_IMAGE]
+        background.moveTo(0,-65);
+        background.onenterframe = function () {}
+
         this.scoreLabel = this.setupScoreLabel();
         this.addChild(this.scoreLabel);
 
@@ -105,6 +114,7 @@ var MainScene = enchant.Class.create(enchant.Scene, {
         this.map.loadData(STAGE01.map);
 
         this.player = new Player();
+        this.stage.addChild(background)
         this.stage.addChild(this.map);
         this.setupEnemy();
         this.setupCoin();
@@ -156,7 +166,7 @@ var Player = enchant.Class.create(enchant.Sprite, {
     initialize: function () {
         Sprite.call(this, PLAYER_WIDTH, PLAYER_HEIGHT)
         this.image = game.assets[PLAYER_IMAGE];
-        this.backgroundColor =  "rgba(0, 0, 0, 0.9)";
+        // this.backgroundColor =  "rgba(0, 0, 0, 0.9)";
         this.frame = 0;
         this.x = 2 * 4;
         this.y = SCREEN_HEIGHT-32-32-32-32;
@@ -274,7 +284,8 @@ var Player = enchant.Class.create(enchant.Sprite, {
 
         //弾を出す
         if (game.frame % 50 === 0) {
-            var bullet = new Bullet(this.centerX, this.centerY, this.scaleX);
+            // var bullet = new VoiceBullet("test", this.centerX, this.centerY, this.scaleX);
+            var bullet = createVoiceBullet("おらおらおら！", this.centerX, this.centerY);
             mainScene.stage.addChild(bullet);
         }
 
@@ -282,7 +293,9 @@ var Player = enchant.Class.create(enchant.Sprite, {
         this.tick++;
         if (!input.up && !input.down &&
             !input.left && !input.right) this.tick = 1;//静止
-        this.frame = this.anim[this.dir * 4 + (this.tick % 4)];
+        if (game.frame % 5 === 0) {
+            this.frame = this.anim[this.dir * 4 + (this.tick % 4)];
+        }
         // console.log("tick: "+this.tick+" tick%4:", this.tick%4);
     },
 
@@ -478,10 +491,12 @@ var Coin = Class.create(Sprite, {
     }
 })
 
-var Bullet = Class.create(Sprite, {
+var Bullet = Class.create(enchant.Sprite, {
     // 初期化処理
     initialize: function (x, y, direction) {
         Sprite.call(this, BULLET_WIDTH, BULLET_HEIGHT)
+        var label = new Label("Text");
+        label.color = "rgba(255, 123, 213, 1.0)"
         this.backgroundColor = "rgba(0, 0, 0, 0.8)";
         this.x = x;
         this.y = y;
@@ -514,3 +529,18 @@ var Bullet = Class.create(Sprite, {
 
     }
 })
+
+function createVoiceBullet(text, x, y) {
+    var bullet = new enchant.Label(text);
+    bullet.x = x;
+    bullet.y = y;
+    bullet.width = 3;
+    bullet._style['line-height'] = 0;
+    bullet.font = "8px Tahoma";
+    bullet.color = "rgb(0, 0, 0)"
+    bullet.addEventListener("enterframe", function () {
+        bullet.x += 2;
+    })
+
+    return bullet;
+}
