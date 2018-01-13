@@ -11,7 +11,7 @@ var SCREEN_HEIGHT = 320
 var PLAYER_WIDTH = 30
 var PLAYER_HEIGHT = 30
 
-var ENEMY_WIDTH = 30
+var ENEMY_WIDTH = 27
 var ENEMY_HEIGHT = 30
 
 var TILE_WIDTH = 16
@@ -23,6 +23,9 @@ var BULLET_WIDTH = 8;
 var BULLET_HEIGHT = 8;
 var BULLET_SPEED = 6;
 
+var MESSAGE_WIDTH = 50
+var MESSAGE_HEIGHT = 20
+
 var BACKGROUND_WIDTH = 1320;
 var BACKGROUND_HEIGHT = 320;
 
@@ -32,14 +35,17 @@ var game = null;
 var mainScene = null;
 var clearScene = null;
 
-var PLAYER_IMAGE = "images/testkun03.png";
+var PLAYER_IMAGE = "images/testkun05.png";
+var ENEMY_IMAGE = "images/enemy05.png";
 var MAP_IMAGE = "images/map2.png";
 var ICON_IMAGE = "images/icon0.gif";
-var BACKGROUND_IMAGE = "images/bg1.png";
+var BACKGROUND_IMAGE = "images/bg2.png";
+var MESSAGE_IMAGE = "images/testmessage.png";
 
 var ASSETS = [
     PLAYER_IMAGE, MAP_IMAGE,
-    ICON_IMAGE, BACKGROUND_IMAGE
+    ICON_IMAGE, BACKGROUND_IMAGE,
+    MESSAGE_IMAGE, ENEMY_IMAGE
 ];
 
 window.onload = function() {
@@ -102,9 +108,6 @@ var MainScene = enchant.Class.create(enchant.Scene, {
         background.moveTo(0,-65);
         background.onenterframe = function () {}
 
-        this.scoreLabel = this.setupScoreLabel();
-        this.addChild(this.scoreLabel);
-
         //グループ（ステージ）の生成
         this.stage = new Group();
 
@@ -112,6 +115,7 @@ var MainScene = enchant.Class.create(enchant.Scene, {
         this.map = new Map(TILE_WIDTH, TILE_HEIGHT);
         this.map.image = game.assets[MAP_IMAGE];
         this.map.loadData(STAGE01.map);
+        this.scoreLabel = this.setupScoreLabel();
 
         this.player = new Player();
         this.stage.addChild(background)
@@ -120,6 +124,7 @@ var MainScene = enchant.Class.create(enchant.Scene, {
         this.setupCoin();
         this.stage.addChild(this.player);
         this.addChild(this.stage);
+        this.addChild(this.scoreLabel);
     },
 
     onenterframe: function () {
@@ -146,7 +151,8 @@ var MainScene = enchant.Class.create(enchant.Scene, {
     },
 
     setupScoreLabel: function () {
-        var scoreLabel = new Label("SCORE : 0");
+
+        var scoreLabel = new Label("ゴールまで : "+this.map.width);
         scoreLabel.font = "16px Tahoma";
         scoreLabel.color = "break";
         scoreLabel.x = 10;	// X座標
@@ -174,7 +180,7 @@ var Player = enchant.Class.create(enchant.Sprite, {
         this.anim  = [
             0,  1,  2,  1, //左
             0,  1,  2,  1, //右
-            0,  0,  0,  0, //上
+            0,  3,  0,  0, //上
             0,  0,  0,  0  //下
         ];
         this.isDrop = false;
@@ -225,10 +231,10 @@ var Player = enchant.Class.create(enchant.Sprite, {
             //     this.y += 3;
             // }
 
-            if (!mainScene.map.hitTest(this.centerX, this.bottom)) { // 地面にぶつからなかった場合、下に落ちる(食い込み防止)
+            if (!mainScene.map.hitTest(this.centerX, this.bottom) && !mainScene.map.hitTest(this.right, this.bottom) && !mainScene.map.hitTest(this.left, this.bottom)) { // 地面にぶつからなかった場合、下に落ちる(食い込み防止)
                 this.y += 1;
             }
-            if (!mainScene.map.hitTest(this.centerX, this.bottom)) { // 地面にぶつからなかった場合、下に落ちる
+            if (!mainScene.map.hitTest(this.centerX, this.bottom) && !mainScene.map.hitTest(this.right, this.bottom) && !mainScene.map.hitTest(this.left, this.bottom)) { // 地面にぶつからなかった場合、下に落ちる
                 this.y += 3;
             }
         }
@@ -284,10 +290,15 @@ var Player = enchant.Class.create(enchant.Sprite, {
 
         //弾を出す
         if (game.frame % 50 === 0) {
-            // var bullet = new VoiceBullet("test", this.centerX, this.centerY, this.scaleX);
-            var bullet = createVoiceBullet("おらおらおら！", this.centerX, this.centerY);
-            mainScene.stage.addChild(bullet);
+            // var bullet = new Bullet(this.centerX, this.centerY, this.scaleX);
+            // var bullet = createVoiceBullet("おらおらおら！", this.centerX, this.centerY);
+            // mainScene.stage.addChild(bullet);
         }
+
+        // ラベルアニメーション
+        mainScene.scoreLabel.score = mainScene.map.width - this.x - 28;
+        mainScene.scoreLabel.text = "ゴールまで : " + mainScene.scoreLabel.score; //スコアを加算(10点)
+
 
         // アニメーションフレームの指定
         this.tick++;
@@ -338,7 +349,7 @@ var Enemy1 = Class.create(Sprite, {
         Sprite.call(this, ENEMY_WIDTH, ENEMY_HEIGHT)
         this.x = x;
         this.y = y;
-        this.image = game.assets[PLAYER_IMAGE];
+        this.image = game.assets[ENEMY_IMAGE];
         this.frame = 0;
         this.dir = DIR_LEFT;
         this.scaleX = -1;
@@ -420,7 +431,7 @@ var Enemy2 = Class.create(Sprite, {
         Sprite.call(this, ENEMY_WIDTH, ENEMY_HEIGHT)
         this.x = x;
         this.y = y;
-        this.image = game.assets[PLAYER_IMAGE];
+        this.image = game.assets[ENEMY_IMAGE];
         this.frame = 0;
         this.dir = DIR_LEFT;
         this.isIntersect = false;
@@ -483,8 +494,8 @@ var Coin = Class.create(Sprite, {
             if (mainScene.player.x > (this.x -24))
                 if (mainScene.player.y < this.y)
                     if (mainScene.player.y > (this.y -32)){
-                        mainScene.scoreLabel.score += (10 * this.opacity);
-                        mainScene.scoreLabel.text = "SCORE : " + mainScene.scoreLabel.score; //スコアを加算(10点)
+                        // mainScene.scoreLabel.score += (10 * this.opacity);
+                        // mainScene.scoreLabel.text = "SCORE : " + mainScene.scoreLabel.score; //スコアを加算(10点)
                         this.opacity = 0; //消す
                     }};
 
@@ -494,9 +505,9 @@ var Coin = Class.create(Sprite, {
 var Bullet = Class.create(enchant.Sprite, {
     // 初期化処理
     initialize: function (x, y, direction) {
-        Sprite.call(this, BULLET_WIDTH, BULLET_HEIGHT)
-        var label = new Label("Text");
-        label.color = "rgba(255, 123, 213, 1.0)"
+        Sprite.call(this, MESSAGE_WIDTH, MESSAGE_HEIGHT)
+        this.image = game.assets[MESSAGE_IMAGE];
+        // label.color = "rgba(255, 123, 213, 1.0)"
         this.backgroundColor = "rgba(0, 0, 0, 0.8)";
         this.x = x;
         this.y = y;
@@ -515,9 +526,9 @@ var Bullet = Class.create(enchant.Sprite, {
         this.centerY = this.top + (BULLET_HEIGHT/2)
 
         if (this.direction === 1) {
-            this.x += BULLET_SPEED;
+            this.x += 2;
         } else if (this.direction === -1)  {
-            this.x -= BULLET_SPEED;
+            this.x -= 2;
         }
 
         //壁にぶつかった場合
