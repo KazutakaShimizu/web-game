@@ -26,7 +26,7 @@ var BULLET_SPEED = 6;
 var MESSAGE_WIDTH = 50
 var MESSAGE_HEIGHT = 20
 
-var BACKGROUND_WIDTH = 1320;
+var BACKGROUND_WIDTH = 4124;
 var BACKGROUND_HEIGHT = 320;
 
 var DEATH00_WIDTH = 45;
@@ -45,7 +45,7 @@ var PLAYER_IMAGE = "images/testkun09.png";
 var ENEMY_IMAGE = "images/enemy06.png";
 var MAP_IMAGE = "images/map2.png";
 var ICON_IMAGE = "images/icon0.gif";
-var BACKGROUND_IMAGE = "images/bg3.png"
+var BACKGROUND_IMAGE = "images/bg_4124.png"
 var DEATH00_IMAGE = "images/death00.png";
 var DEATH01_IMAGE = "images/death01.png";
 var MESSAGE_IMAGE = "images/testmessage.png";
