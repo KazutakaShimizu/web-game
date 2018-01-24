@@ -75,23 +75,28 @@ window.onload = function() {
 
     //ロード完了時に呼ばれる
     game.onload = function() {
+        console.log("onload");
         // タイトルシーン
         var titleScene = setupTitleScene(game.rootScene)
         titleScene.addEventListener('touchstart', function() {
-            game.pushScene(mainScene);
-        });
-        // メインシーン
-        mainScene = new MainScene();
-        mainScene.onclear = function () {
-            game.pushScene(clearScene);
-        }
+            game.removeScene(mainScene);
+            mainScene = new MainScene();
+            game.replaceScene(mainScene)
 
-        mainScene.onGameOver = function () {
-            console.log("GameOver !");
-            game.replaceScene(mainScene);
-        }
-        // クリアーシーン
-        clearScene = new ClearScene();
+            // メインシーン
+            // mainScene = new MainScene();
+            mainScene.onclear = function () {
+                // クリアーシーン
+                game.removeScene(mainScene);
+                clearScene = new ClearScene();
+                game.replaceScene(clearScene);
+            }
+
+            mainScene.onGameOver = function () {
+                console.log("GameOver !");
+                game.popScene();
+            }
+        });
     },
 
     game.start();
@@ -115,6 +120,7 @@ var MainScene = enchant.Class.create(enchant.Scene, {
     player: null,
 
     onenter: function () {
+        console.log("mainscene onenter");
         var background = new Sprite(BACKGROUND_WIDTH,BACKGROUND_HEIGHT)
         background.image = game.assets[BACKGROUND_IMAGE]
         background.moveTo(0,0);
@@ -457,6 +463,7 @@ var Enemy1 = Class.create(Sprite, {
         this.right = this.x+this.width;    // 右
         this.top   = this.y;               // 上
         this.bottom = this.y+this.height;   // 下
+        // console.log("x:"+this.left+"y:"+this.y);
 
         // 上下動の制御
         if (!this.isUp) {
@@ -519,10 +526,6 @@ var Enemy1 = Class.create(Sprite, {
         }
     },
 
-    // 弾が当たった場合
-    onhit: function () {
-        // console.log("hoge");
-    }
 })
 
 var Enemy2 = Class.create(Sprite, {
@@ -545,6 +548,7 @@ var Enemy2 = Class.create(Sprite, {
         this.right = this.x + this.width;    // 右
         this.top   = this.y;               // 上
         this.bottom = this.y+this.height;   // 下
+        // console.log("x:"+this.left+"y:"+this.y);
         if (this.dir === DIR_LEFT) {
             if (mainScene.map.hitTest(this.left, this.bottom - 12)) { //地面以外にぶつかった場合
                 this.dir = DIR_RIGHT;
@@ -577,12 +581,6 @@ var Enemy2 = Class.create(Sprite, {
             }
         }
     },
-
-    // 弾が当たった場合
-    onhit: function () {
-
-    }
-
 })
 
 var ScoreUpLabel = Class.create(enchant.ui.MutableText, {
