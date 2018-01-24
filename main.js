@@ -77,22 +77,28 @@ window.onload = function() {
 
     //ロード完了時に呼ばれる
     game.onload = function() {
+        console.log("onload");
         // タイトルシーン
         var titleScene = setupTitleScene(game.rootScene)
         titleScene.addEventListener('touchstart', function() {
-            game.pushScene(mainScene);
-        });
-        // メインシーン
-        mainScene = new MainScene();
-        mainScene.onclear = function () {
-            game.pushScene(clearScene);
-        }
-        mainScene.onGameOver = function () {
-            game.popScene();
-        }
-        // クリアーシーン
-        clearScene = new ClearScene();
+            game.removeScene(mainScene);
+            mainScene = new MainScene();
+            game.replaceScene(mainScene)
 
+            // メインシーン
+            // mainScene = new MainScene();
+            mainScene.onclear = function () {
+                // クリアーシーン
+                game.removeScene(mainScene);
+                clearScene = new ClearScene();
+                game.replaceScene(clearScene);
+            }
+
+            mainScene.onGameOver = function () {
+                console.log("GameOver !");
+                game.popScene();
+            }
+        });
     },
     game.start();
 };
@@ -112,9 +118,11 @@ var MainScene = enchant.Class.create(enchant.Scene, {
     map: null,
     stage: null,
     scoreLabel: null,
+    itemLabel: null,
     player: null,
 
     onenter: function () {
+        console.log("mainscene onenter");
         var background = new Sprite(BACKGROUND_WIDTH,BACKGROUND_HEIGHT)
         background.image = game.assets[BACKGROUND_IMAGE]
         background.moveTo(0,0);
@@ -128,7 +136,10 @@ var MainScene = enchant.Class.create(enchant.Scene, {
         this.map.image = game.assets[MAP_IMAGE];
         var stageData = createMapData();
         this.map.loadData(stageData.map);
+        // this.map.loadData(MAP_DATA.map);
+        console.log(this.map.width);
         this.scoreLabel = this.setupScoreLabel();
+        this.itemLabel = this.setupItemLabel();
 
         // Playerデータの作成
         this.player = new Player();
@@ -139,6 +150,7 @@ var MainScene = enchant.Class.create(enchant.Scene, {
         this.stage.addChild(this.player);
         this.addChild(this.stage);
         this.addChild(this.scoreLabel);
+        this.addChild(this.itemLabel);
     },
 
     onenterframe: function () {
@@ -185,8 +197,20 @@ var MainScene = enchant.Class.create(enchant.Scene, {
         scoreLabel.y = 5;	// Y座標
         scoreLabel.score = 0; // スコア値。独自のプロパテイ
         return scoreLabel;
-    }
 
+    },
+
+    setupItemLabel: function () {
+
+        var itemLabel = new Label("リターン : 0円");
+        itemLabel.font = "16px Tahoma";
+        itemLabel.color = "break";
+        itemLabel.x = 10;	// X座標
+        itemLabel.y = 25;	// Y座標
+        itemLabel.score = 0; // スコア値。独自のプロパテイ
+        return itemLabel;
+
+    }
 })
 
 var ClearScene = enchant.Class.create(enchant.Scene, {
@@ -200,7 +224,7 @@ var Player = enchant.Class.create(enchant.Sprite, {
     initialize: function () {
         Sprite.call(this, PLAYER_WIDTH, PLAYER_HEIGHT)
         this.image = game.assets[PLAYER_IMAGE];
-        // this.backgroundColor =  "rgba(0, 0, 0, 1)";
+        this.backgroundColor =  "rgba(0, 0, 0, 1)";
         this.frame = 0;
         this.scaleX *= 1;
         this.scaleY *= 1;
@@ -270,13 +294,6 @@ var Player = enchant.Class.create(enchant.Sprite, {
 
         var input = game.input
 
-        if (input.up) {
-            this.dir = DIR_UP;
-            if (mainScene.map.hitTest(this.centerX, this.bottom)) { // キャラクタが地面についている場合、ジャンプさせる
-                this.gravity = 13; // 重力値をセット
-            }
-        }
-
         //左へ移動
         if (input.left) {
             this.dir = DIR_LEFT;
@@ -299,6 +316,13 @@ var Player = enchant.Class.create(enchant.Sprite, {
             this.dir = DIR_DOWN
         }
 
+        if (input.up) {
+            this.dir = DIR_UP;
+            if (mainScene.map.hitTest(this.centerX, this.bottom)) { // キャラクタが地面についている場合、ジャンプさせる
+                this.gravity = 13; // 重力値をセット
+            }
+        }
+
         // 画面からはみ出ないように制御
         var left = 0;
         if (this.x < left) {
@@ -318,13 +342,6 @@ var Player = enchant.Class.create(enchant.Sprite, {
             this.death()
         }
 
-        //弾を出す
-        // if (game.frame % 50 === 0) {
-            // var bullet = new Bullet(this.centerX, this.centerY, this.scaleX);
-            // var bullet = createVoiceBullet("おらおらおら！", this.centerX, this.centerY);
-            // mainScene.stage.addChild(bullet);
-        // }
-
         // ラベルアニメーション
         mainScene.scoreLabel.score = mainScene.map.width - this.x - 396;
         mainScene.scoreLabel.text = "天竺まであと : " + mainScene.scoreLabel.score + "km"; //スコアを加算(10点)
@@ -333,7 +350,7 @@ var Player = enchant.Class.create(enchant.Sprite, {
         this.tick++;
         if (!input.up && !input.down &&
             !input.left && !input.right) this.tick = 1;//静止
-        if (game.frame % 5 === 0) {
+        if (this.tick % 5 === 0) {
             this.frame = this.anim[this.dir * 4 + (this.tick % 4)];
         }
         // console.log("tick: "+this.tick+" tick%4:", this.tick%4);
@@ -471,6 +488,7 @@ var Enemy1 = Class.create(Sprite, {
         this.right = this.x+this.width;    // 右
         this.top   = this.y;               // 上
         this.bottom = this.y+this.height;   // 下
+        // console.log("x:"+this.left+"y:"+this.y);
 
         // 上下動の制御
         if (!this.isUp) {
@@ -519,6 +537,7 @@ var Enemy1 = Class.create(Sprite, {
         if (mainScene.player.intersect(this)) {
             if (!this.isIntersect) {
                 this.isIntersect = true;
+                console.log("intersect1");
                 mainScene.player.death();
             }
         }
@@ -532,10 +551,6 @@ var Enemy1 = Class.create(Sprite, {
         }
     },
 
-    // 弾が当たった場合
-    onhit: function () {
-        // console.log("hoge");
-    }
 })
 
 var Enemy2 = Class.create(Sprite, {
@@ -545,7 +560,7 @@ var Enemy2 = Class.create(Sprite, {
         this.x = x;
         this.y = y;
         this.image = game.assets[ENEMY_IMAGE];
-        this.backgroundColor = "rgba(34, 21, 24, 0.7)";
+        this.backgroundColor = "rgba(0, 0, 0, 0.9)";
         this.frame = 0;
         this.dir = DIR_LEFT;
         this.scaleX = -1;
@@ -558,6 +573,7 @@ var Enemy2 = Class.create(Sprite, {
         this.right = this.x + this.width;    // 右
         this.top   = this.y;               // 上
         this.bottom = this.y+this.height;   // 下
+        // console.log("x:"+this.left+"y:"+this.y);
         if (this.dir === DIR_LEFT) {
             if (mainScene.map.hitTest(this.left, this.bottom - 12)) { //地面以外にぶつかった場合
                 this.dir = DIR_RIGHT;
@@ -577,6 +593,7 @@ var Enemy2 = Class.create(Sprite, {
         if (mainScene.player.intersect(this)) {
             if (!this.isIntersect) {
                 this.isIntersect = true;
+                console.log("intersect2");
                 mainScene.player.death();
             }
         }
@@ -589,31 +606,24 @@ var Enemy2 = Class.create(Sprite, {
             }
         }
     },
-
-    // 弾が当たった場合
-    onhit: function () {
-
-    }
-
 })
 
 var ScoreUpLabel = Class.create(enchant.ui.MutableText, {
 
     initialize: function (score) {
         MutableText.call(this);
-
         this.text = '+' + score;
         this.time = 0;
+        mainScene.itemLabel.score += score;
+        mainScene.itemLabel.text = "リターン : " + mainScene.itemLabel.score + "円";
     },
 
     onenterframe: function () {
         this.y -= 0.1;
-        this.opacity = 1.0 - (this.time/30)
-
         if (this.time > 30) {
+            // ラベルアニメーション
             mainScene.stage.removeChild(this)
         }
-
         this.time += 1;
     }
 })
@@ -635,12 +645,11 @@ var Item = Class.create(Sprite, {
         this.bottom = this.y+this.height;   // 下
         // console.log("x: "+this.x+" y: "+this.y);
         if (mainScene.player.intersect(this)) {
-            var label = new ScoreUpLabel(100)
+            var label = new ScoreUpLabel(10000)
             label.moveTo(this.x, this.y)
-            mainScene.stage.addChild(label);
-            // mainScene.scoreLabel.score += (10 * this.opacity);
-            // mainScene.scoreLabel.text = "SCORE : " + mainScene.scoreLabel.score; //スコアを加算(10点)
             mainScene.stage.removeChild(this)
+            mainScene.stage.addChild(label);
+
         }
     }
 })
