@@ -18,7 +18,7 @@ var TILE_WIDTH = 16
 var TILE_HEIGHT = 16
 
 var ITEM_WIDTH = 25
-var ITEM_HEIGHT = 20
+var ITEM_HEIGHT = 21
 
 var BULLET_WIDTH = 8
 var BULLET_HEIGHT = 8
@@ -49,7 +49,7 @@ var PLAYER_IMAGE = "images/testkun10.png";
 var ENEMY_IMAGE = "images/enemy06.png";
 var ICON_IMAGE = "images/icon0.gif";
 var MAP_IMAGE = "images/map3.png";
-var ITEM_IMAGE = "images/riturn.png";
+var ITEM_IMAGE = "images/return.png";
 var BACKGROUND_IMAGE = "images/bg_4124.png"
 
 var DEATH00_IMAGE = "images/death00.png";
@@ -169,7 +169,7 @@ var MainScene = enchant.Class.create(enchant.Scene, {
     },
 
     setupCoin: function () {
-        this.stage.addChild(new Item(CAMERA_FRAME, 96, 154));
+        this.stage.addChild(new Item(CAMERA_FRAME, 96, 160));
         this.stage.addChild(new Item(VIDEO_FRAME, 433, 164));
         this.stage.addChild(new Item(PEN_FRAME, 844, 202));
         this.stage.addChild(new Item(MONEY_FRAME, 1287, 100));
@@ -309,17 +309,18 @@ var Player = enchant.Class.create(enchant.Sprite, {
         }
 
         // 穴に落ちた場合
-        if (this.y > SCREEN_HEIGHT + 50 && !this.isDrop) {
+        if (this.y > SCREEN_HEIGHT && !this.isDrop) {
             this.isDrop = true;
+            this.moveTo(this.x, SCREEN_HEIGHT-15)
             this.death()
         }
 
         //弾を出す
-        if (game.frame % 50 === 0) {
+        // if (game.frame % 50 === 0) {
             // var bullet = new Bullet(this.centerX, this.centerY, this.scaleX);
             // var bullet = createVoiceBullet("おらおらおら！", this.centerX, this.centerY);
             // mainScene.stage.addChild(bullet);
-        }
+        // }
 
         // ラベルアニメーション
         mainScene.scoreLabel.score = mainScene.map.width - this.x - 28;
@@ -338,23 +339,29 @@ var Player = enchant.Class.create(enchant.Sprite, {
     showDeath00: function () {
         if (!this.isDeath) {
             this.isDeath = true;
+            this.left  = this.x;    // 左
+            this.top   = this.y;    // 上
+            this.centerX = this.left + (PLAYER_WIDTH/2)
+            this.centerY = this.top + (PLAYER_HEIGHT/2)
 
             this.removeEventListener(Event.ENTER_FRAME, this.showDeath00);
             var death00 = new Sprite(DEATH00_WIDTH, DEATH00_HEIGHT);
             death00.image = game.assets[DEATH00_IMAGE];
-            death00.x = this.x;
-            death00.y = this.y;
+            death00.x = this.centerX-(DEATH00_WIDTH/2);
+            death00.y = this.centerY-(DEATH00_HEIGHT/2);
+
             var tick = 1;
             var isf = true;
             mainScene.stage.removeChild(mainScene.player);
             death00.addEventListener(Event.ENTER_FRAME, function () {
+
                 if (isf && tick % 40 === 0) {
                     isf = false;
                     this.remove(death00)
                     var death01 = new Sprite(DEATH01_WIDTH, DEATH01_HEIGHT);
                     death01.image = game.assets[DEATH01_IMAGE];
-                    death01.x = death00.x-50;
-                    death01.y = death00.y-50;
+                    death01.x = death00.x - DEATH00_WIDTH;
+                    death01.y = death00.y - DEATH00_HEIGHT;
                     var isf1 = true;
                     death01.addEventListener(Event.ENTER_FRAME, function () {
                         if (isf1 && game.frame % 100 === 0) {
@@ -368,13 +375,14 @@ var Player = enchant.Class.create(enchant.Sprite, {
                 tick++;
             })
             mainScene.stage.addChild(death00);
+
         }
     },
 
     // 敵にぶつかった時
     death: function () {
         this.removeEventListener(Event.ENTER_FRAME, this.normal); // 一旦Playerのフレーム更新処理を削除
-        this.moveTo(this.x, SCREEN_HEIGHT/2);
+        // this.moveTo(this.x, SCREEN_HEIGHT/2);
         this.addEventListener(Event.ENTER_FRAME, this.showDeath00)
     },
 
@@ -420,6 +428,7 @@ var Enemy1 = Class.create(Sprite, {
         Sprite.call(this, ENEMY_WIDTH, ENEMY_HEIGHT)
         this.x = x;
         this.y = y;
+        this.backgroundColor = "rgba(0, 0, 0, 0.8)";
         this.image = game.assets[ENEMY_IMAGE];
         this.frame = 0;
         this.dir = DIR_LEFT;
@@ -512,6 +521,7 @@ var Enemy2 = Class.create(Sprite, {
         this.x = x;
         this.y = y;
         this.image = game.assets[ENEMY_IMAGE];
+        this.backgroundColor = "rgba(34, 21, 24, 0.7)";
         this.frame = 0;
         this.dir = DIR_LEFT;
         this.scaleX = -1;
@@ -595,18 +605,19 @@ var Item = Class.create(Sprite, {
     },
 
     onenterframe: function () {
+        this.left = this.x;               // 左
+        this.right = this.x + this.width;    // 右
+        this.top   = this.y;               // 上
+        this.bottom = this.y+this.height;   // 下
         // console.log("x: "+this.x+" y: "+this.y);
-        if (mainScene.player.x < (this.x +8)) {
-            if (mainScene.player.x > (this.x -24))
-                if (mainScene.player.y < this.y)
-                    if (mainScene.player.y > (this.y -32)){
-                        var label = new ScoreUpLabel(100)
-                        label.moveTo(this.x, this.y)
-                        mainScene.stage.addChild(label);
-                        // mainScene.scoreLabel.score += (10 * this.opacity);
-                        // mainScene.scoreLabel.text = "SCORE : " + mainScene.scoreLabel.score; //スコアを加算(10点)
-                        mainScene.stage.removeChild(this)
-                    }};
+        if (mainScene.player.intersect(this)) {
+            var label = new ScoreUpLabel(100)
+            label.moveTo(this.x, this.y)
+            mainScene.stage.addChild(label);
+            // mainScene.scoreLabel.score += (10 * this.opacity);
+            // mainScene.scoreLabel.text = "SCORE : " + mainScene.scoreLabel.score; //スコアを加算(10点)
+            mainScene.stage.removeChild(this)
+        }
 
     }
 })
@@ -650,20 +661,20 @@ var Item = Class.create(Sprite, {
 //     }
 // })
 
-function createVoiceBullet(text, x, y) {
-    var bullet = new enchant.Label(text);
-    bullet.x = x;
-    bullet.y = y;
-    bullet.width = 3;
-    bullet._style['line-height'] = 0;
-    bullet.font = "8px Tahoma";
-    bullet.color = "rgb(0, 0, 0)"
-    bullet.addEventListener("enterframe", function () {
-        bullet.x += 2;
-    })
-
-    return bullet;
-}
+// function createVoiceBullet(text, x, y) {
+//     var bullet = new enchant.Label(text);
+//     bullet.x = x;
+//     bullet.y = y;
+//     bullet.width = 3;
+//     bullet._style['line-height'] = 0;
+//     bullet.font = "8px Tahoma";
+//     bullet.color = "rgb(0, 0, 0)"
+//     bullet.addEventListener("enterframe", function () {
+//         bullet.x += 2;
+//     })
+//
+//     return bullet;
+// }
 
 
 
