@@ -20,13 +20,6 @@ var TILE_HEIGHT = 16
 var ITEM_WIDTH = 25
 var ITEM_HEIGHT = 21
 
-var BULLET_WIDTH = 8
-var BULLET_HEIGHT = 8
-var BULLET_SPEED = 6
-
-var MESSAGE_WIDTH = 50
-var MESSAGE_HEIGHT = 20
-
 var BACKGROUND_WIDTH = 4124;
 var BACKGROUND_HEIGHT = 320;
 
@@ -47,16 +40,18 @@ var clearScene = null;
 
 var PLAYER_IMAGE = "images/testkun10.png";
 var ENEMY_IMAGE = "images/enemy06.png";
-var ICON_IMAGE = "images/icon0.gif";
 var MAP_IMAGE = "images/map3.png";
 var ITEM_IMAGE = "images/return.png";
 var BACKGROUND_IMAGE = "images/map03.png"
+
 var TITLE_BACKGROUND_IMAGE01 = "images/top01.png"
 var TITLE_BACKGROUND_IMAGE02 = "images/top02.png"
 var TITLE_BACKGROUND_IMAGE03 = "images/top03.png"
 var TITLE_BACKGROUND_IMAGE04 = "images/top04.png"
 var TITLE_BACKGROUND_IMAGE05 = "images/top05.png"
 var TITLE_BACKGROUND_IMAGE06 = "images/top06.png"
+var TITLE_BACKGROUND_IMAGE = "images/top01.gif"
+var CLEAR_BACKGROUND_IMAGE = "images/clear.png"
 
 var DEATH00_IMAGE = "images/death00.png";
 var DEATH01_IMAGE = "images/death01.png";
@@ -73,6 +68,8 @@ var ASSETS = [
     TITLE_BACKGROUND_IMAGE04,
     TITLE_BACKGROUND_IMAGE05,
     TITLE_BACKGROUND_IMAGE06,
+    TITLE_BACKGROUND_IMAGE,
+    CLEAR_BACKGROUND_IMAGE
 ];
 
 window.onload = function() {
@@ -97,15 +94,6 @@ window.onload = function() {
             game.removeScene(mainScene);
             mainScene = new MainScene();
             game.replaceScene(mainScene)
-
-            // メインシーン
-            // mainScene = new MainScene();
-            mainScene.onclear = function () {
-                // クリアーシーン
-                game.removeScene(mainScene);
-                clearScene = new ClearScene();
-                game.replaceScene(clearScene);
-            }
 
             mainScene.onGameOver = function () {
                 console.log("GameOver !");
@@ -267,8 +255,14 @@ var MainScene = enchant.Class.create(enchant.Scene, {
 })
 
 var ClearScene = enchant.Class.create(enchant.Scene, {
+
     onenter: function () {
-        this.backgroundColor = "#FF0000";
+
+        var background = new Sprite(SCREEN_WIDTH,SCREEN_HEIGHT);
+        background.image = game.assets[CLEAR_BACKGROUND_IMAGE];
+        background.x = 0;
+        background.y = 0;
+        this.addChild(background)
     },
 })
 
@@ -494,7 +488,6 @@ var Player = enchant.Class.create(enchant.Sprite, {
                 } else {
                     this.frame = 0;
                 }
-                console.log(this.x);
             }
         } else if (this.x >= 3949 && flag3) {
             if (tick % 30 === 0) {
