@@ -267,13 +267,6 @@ var Player = enchant.Class.create(enchant.Sprite, {
 
         var input = game.input
 
-        if (input.up) {
-            this.dir = DIR_UP;
-            if (mainScene.map.hitTest(this.centerX, this.bottom)) { // キャラクタが地面についている場合、ジャンプさせる
-                this.gravity = 13; // 重力値をセット
-            }
-        }
-
         //左へ移動
         if (input.left) {
             this.dir = DIR_LEFT;
@@ -296,6 +289,13 @@ var Player = enchant.Class.create(enchant.Sprite, {
             this.dir = DIR_DOWN
         }
 
+        if (input.up) {
+            this.dir = DIR_UP;
+            if (mainScene.map.hitTest(this.centerX, this.bottom)) { // キャラクタが地面についている場合、ジャンプさせる
+                this.gravity = 13; // 重力値をセット
+            }
+        }
+
         // 画面からはみ出ないように制御
         var left = 0;
         if (this.x < left) {
@@ -314,13 +314,6 @@ var Player = enchant.Class.create(enchant.Sprite, {
             this.moveTo(this.x, SCREEN_HEIGHT-15)
             this.death()
         }
-
-        //弾を出す
-        // if (game.frame % 50 === 0) {
-            // var bullet = new Bullet(this.centerX, this.centerY, this.scaleX);
-            // var bullet = createVoiceBullet("おらおらおら！", this.centerX, this.centerY);
-            // mainScene.stage.addChild(bullet);
-        // }
 
         // ラベルアニメーション
         mainScene.scoreLabel.score = mainScene.map.width - this.x - 28;
@@ -495,6 +488,7 @@ var Enemy1 = Class.create(Sprite, {
         if (mainScene.player.intersect(this)) {
             if (!this.isIntersect) {
                 this.isIntersect = true;
+                console.log("intersect1");
                 mainScene.player.death();
             }
         }
@@ -553,6 +547,7 @@ var Enemy2 = Class.create(Sprite, {
         if (mainScene.player.intersect(this)) {
             if (!this.isIntersect) {
                 this.isIntersect = true;
+                console.log("intersect2");
                 mainScene.player.death();
             }
         }
@@ -577,19 +572,15 @@ var ScoreUpLabel = Class.create(enchant.ui.MutableText, {
 
     initialize: function (score) {
         MutableText.call(this);
-
         this.text = '+' + score;
         this.time = 0;
     },
 
     onenterframe: function () {
         this.y -= 0.1;
-        this.opacity = 1.0 - (this.time/30)
-
         if (this.time > 30) {
             mainScene.stage.removeChild(this)
         }
-
         this.time += 1;
     }
 })
@@ -613,10 +604,11 @@ var Item = Class.create(Sprite, {
         if (mainScene.player.intersect(this)) {
             var label = new ScoreUpLabel(100)
             label.moveTo(this.x, this.y)
+            mainScene.stage.removeChild(this)
             mainScene.stage.addChild(label);
             // mainScene.scoreLabel.score += (10 * this.opacity);
             // mainScene.scoreLabel.text = "SCORE : " + mainScene.scoreLabel.score; //スコアを加算(10点)
-            mainScene.stage.removeChild(this)
+
         }
 
     }
