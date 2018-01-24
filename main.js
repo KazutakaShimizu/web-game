@@ -51,7 +51,12 @@ var ICON_IMAGE = "images/icon0.gif";
 var MAP_IMAGE = "images/map3.png";
 var ITEM_IMAGE = "images/return.png";
 var BACKGROUND_IMAGE = "images/map03.png"
-var TITLE_BACKGROUND_IMAGE = "images/top01.gif"
+var TITLE_BACKGROUND_IMAGE01 = "images/top01.png"
+var TITLE_BACKGROUND_IMAGE02 = "images/top02.png"
+var TITLE_BACKGROUND_IMAGE03 = "images/top03.png"
+var TITLE_BACKGROUND_IMAGE04 = "images/top04.png"
+var TITLE_BACKGROUND_IMAGE05 = "images/top05.png"
+var TITLE_BACKGROUND_IMAGE06 = "images/top06.png"
 
 var DEATH00_IMAGE = "images/death00.png";
 var DEATH01_IMAGE = "images/death01.png";
@@ -62,7 +67,12 @@ var ASSETS = [
     ITEM_IMAGE, BACKGROUND_IMAGE,
     MESSAGE_IMAGE, ENEMY_IMAGE,
     DEATH00_IMAGE,DEATH01_IMAGE,
-    TITLE_BACKGROUND_IMAGE,
+    TITLE_BACKGROUND_IMAGE01,
+    TITLE_BACKGROUND_IMAGE02,
+    TITLE_BACKGROUND_IMAGE03,
+    TITLE_BACKGROUND_IMAGE04,
+    TITLE_BACKGROUND_IMAGE05,
+    TITLE_BACKGROUND_IMAGE06,
 ];
 
 window.onload = function() {
@@ -79,7 +89,10 @@ window.onload = function() {
     game.onload = function() {
         console.log("onload");
         // タイトルシーン
-        var titleScene = setupTitleScene(game.rootScene)
+        var titleScene = setupTitleScene(game.rootScene);
+        // var titleScene = new TitleScene();
+        // game.pushScene(titleScene);
+
         titleScene.addEventListener('touchstart', function() {
             game.removeScene(mainScene);
             mainScene = new MainScene();
@@ -105,13 +118,58 @@ window.onload = function() {
 
 function setupTitleScene(titleScene) {
     var background = new Sprite(BACKGROUND_WIDTH,BACKGROUND_HEIGHT);
-    background.image = game.assets[TITLE_BACKGROUND_IMAGE];
+    background.image = game.assets[TITLE_BACKGROUND_IMAGE01];
     background.x = 0;
     background.y = 0;
     titleScene.addChild(background);
     return titleScene;
 }
 
+var TitleScene = enchant.Class.create(enchant.Scene, {
+    onenter: function () {
+        this.background = new Sprite(BACKGROUND_WIDTH,BACKGROUND_HEIGHT);
+        this.background.image = game.assets[TITLE_BACKGROUND_IMAGE01];
+        this.background.x = 0;
+        this.background.y = 0;
+        this.backgroundNumber = 1;
+        this.tick = 0;
+        this.addChild(this.background);
+    },
+    onenterframe: function () {
+        if (this.tick % 20 === 0) {
+            this.background = new Sprite(BACKGROUND_WIDTH,BACKGROUND_HEIGHT);
+            this.background.x = 0;
+            this.background.y = 0;
+            if (this.backgroundNumber == 1) {
+                console.log(1);
+                this.background = game.assets[TITLE_BACKGROUND_IMAGE02];
+                this.backgroundNumber = 2;
+            }else if(this.backgroundNumber == 2){
+                console.log(2);
+                this.background = game.assets[TITLE_BACKGROUND_IMAGE03];
+                this.backgroundNumber = 3;
+            }else if(this.backgroundNumber == 3){
+                console.log(3);
+                this.background = game.assets[TITLE_BACKGROUND_IMAGE04];
+                this.backgroundNumber = 4;
+            }else if(this.backgroundNumber == 4){
+                console.log(4);
+                this.background = game.assets[TITLE_BACKGROUND_IMAGE05];
+                this.backgroundNumber = 5;
+            }else if(this.backgroundNumber == 5){
+                console.log(5);
+                this.background = game.assets[TITLE_BACKGROUND_IMAGE06];
+                this.backgroundNumber = 6;
+            }else if(this.backgroundNumber == 6){
+                console.log(6);
+                this.background = game.assets[TITLE_BACKGROUND_IMAGE01];
+                this.backgroundNumber = 1;
+            }
+            this.addChild(this.background);
+        }
+        this.tick ++;
+    },
+})
 
 var MainScene = enchant.Class.create(enchant.Scene, {
 
@@ -145,7 +203,7 @@ var MainScene = enchant.Class.create(enchant.Scene, {
         this.player = new Player();
         this.stage.addChild(background)
         this.stage.addChild(this.map);
-        // this.setupEnemy();
+        this.setupEnemy();
         this.setupCoin();
         this.stage.addChild(this.player);
         this.addChild(this.stage);
@@ -171,6 +229,7 @@ var MainScene = enchant.Class.create(enchant.Scene, {
         this.stage.addChild(new Enemy1(1700,SCREEN_HEIGHT-32-32-10));
         this.stage.addChild(new Enemy2(1800,SCREEN_HEIGHT-32-32));
         this.stage.addChild(new Enemy2(2000,SCREEN_HEIGHT-32-32));
+        this.stage.addChild(new Enemy2(2300,SCREEN_HEIGHT-32-32));
         this.stage.addChild(new Enemy1(2500,SCREEN_HEIGHT-32-32-10));
         this.stage.addChild(new Enemy1(3000,SCREEN_HEIGHT-32-32-10));
         this.stage.addChild(new Enemy1(3100,SCREEN_HEIGHT-32-32-10));
@@ -224,7 +283,7 @@ var Player = enchant.Class.create(enchant.Sprite, {
     initialize: function () {
         Sprite.call(this, PLAYER_WIDTH, PLAYER_HEIGHT)
         this.image = game.assets[PLAYER_IMAGE];
-        this.backgroundColor =  "rgba(0, 0, 0, 1)";
+        // this.backgroundColor =  "rgba(0, 0, 0, 1)";
         this.frame = 0;
         this.scaleX *= 1;
         this.scaleY *= 1;
@@ -469,7 +528,7 @@ var Enemy1 = Class.create(Sprite, {
         Sprite.call(this, ENEMY_WIDTH, ENEMY_HEIGHT)
         this.x = x;
         this.y = y;
-        this.backgroundColor = "rgba(0, 0, 0, 0.8)";
+        // this.backgroundColor = "rgba(0, 0, 0, 0.8)";
         this.image = game.assets[ENEMY_IMAGE];
         this.frame = 0;
         this.dir = DIR_LEFT;
@@ -554,13 +613,12 @@ var Enemy1 = Class.create(Sprite, {
 })
 
 var Enemy2 = Class.create(Sprite, {
-
     initialize: function (x, y) {
         Sprite.call(this, ENEMY_WIDTH, ENEMY_HEIGHT)
         this.x = x;
         this.y = y;
         this.image = game.assets[ENEMY_IMAGE];
-        this.backgroundColor = "rgba(0, 0, 0, 0.9)";
+        // this.backgroundColor = "rgba(0, 0, 0, 0.9)";
         this.frame = 0;
         this.dir = DIR_LEFT;
         this.scaleX = -1;
