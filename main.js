@@ -88,7 +88,7 @@ window.onload = function() {
 
         mainScene.onGameOver = function () {
             console.log("GameOver !");
-            game.popScene();
+            game.replaceScene(mainScene);
         }
         // クリアーシーン
         clearScene = new ClearScene();
@@ -111,6 +111,7 @@ var MainScene = enchant.Class.create(enchant.Scene, {
     map: null,
     stage: null,
     scoreLabel: null,
+    itemLabel: null,
     player: null,
 
     onenter: function () {
@@ -125,9 +126,12 @@ var MainScene = enchant.Class.create(enchant.Scene, {
         // mapデータの作成
         this.map = new Map(TILE_WIDTH, TILE_HEIGHT);
         this.map.image = game.assets[MAP_IMAGE];
-        var stageData = createMapData();
-        this.map.loadData(stageData.map);
+        // var stageData = createMapData();
+        // this.map.loadData(createMapData().map);
+        this.map.loadData(MAP_DATA.map);
+        console.log(this.map.width);
         this.scoreLabel = this.setupScoreLabel();
+        this.itemLabel = this.setupItemLabel();
 
         // Playerデータの作成
         this.player = new Player();
@@ -138,6 +142,7 @@ var MainScene = enchant.Class.create(enchant.Scene, {
         this.stage.addChild(this.player);
         this.addChild(this.stage);
         this.addChild(this.scoreLabel);
+        this.addChild(this.itemLabel);
     },
 
     onenterframe: function () {
@@ -184,8 +189,20 @@ var MainScene = enchant.Class.create(enchant.Scene, {
         scoreLabel.y = 5;	// Y座標
         scoreLabel.score = 0; // スコア値。独自のプロパテイ
         return scoreLabel;
-    }
 
+    },
+
+    setupItemLabel: function () {
+
+        var itemLabel = new Label("リターン : 0円");
+        itemLabel.font = "16px Tahoma";
+        itemLabel.color = "break";
+        itemLabel.x = 10;	// X座標
+        itemLabel.y = 25;	// Y座標
+        itemLabel.score = 0; // スコア値。独自のプロパテイ
+        return itemLabel;
+
+    }
 })
 
 var ClearScene = enchant.Class.create(enchant.Scene, {
@@ -197,7 +214,7 @@ var Player = enchant.Class.create(enchant.Sprite, {
     initialize: function () {
         Sprite.call(this, PLAYER_WIDTH, PLAYER_HEIGHT)
         this.image = game.assets[PLAYER_IMAGE];
-        // this.backgroundColor =  "rgba(0, 0, 0, 1)";
+        this.backgroundColor =  "rgba(0, 0, 0, 1)";
         this.frame = 0;
         this.scaleX *= 1;
         this.scaleY *= 1;
@@ -317,13 +334,13 @@ var Player = enchant.Class.create(enchant.Sprite, {
 
         // ラベルアニメーション
         mainScene.scoreLabel.score = mainScene.map.width - this.x - 28;
-        mainScene.scoreLabel.text = "天竺まであと : " + mainScene.scoreLabel.score + "km"; //スコアを加算(10点)
+        mainScene.scoreLabel.text = "天竺まであと : " + mainScene.scoreLabel.score + "km";
 
         // アニメーションフレームの指定
         this.tick++;
         if (!input.up && !input.down &&
             !input.left && !input.right) this.tick = 1;//静止
-        if (game.frame % 5 === 0) {
+        if (this.tick % 5 === 0) {
             this.frame = this.anim[this.dir * 4 + (this.tick % 4)];
         }
         // console.log("tick: "+this.tick+" tick%4:", this.tick%4);
@@ -515,7 +532,7 @@ var Enemy2 = Class.create(Sprite, {
         this.x = x;
         this.y = y;
         this.image = game.assets[ENEMY_IMAGE];
-        this.backgroundColor = "rgba(34, 21, 24, 0.7)";
+        this.backgroundColor = "rgba(0, 0, 0, 0.9)";
         this.frame = 0;
         this.dir = DIR_LEFT;
         this.scaleX = -1;
@@ -574,11 +591,14 @@ var ScoreUpLabel = Class.create(enchant.ui.MutableText, {
         MutableText.call(this);
         this.text = '+' + score;
         this.time = 0;
+        mainScene.itemLabel.score += score;
+        mainScene.itemLabel.text = "リターン : " + mainScene.itemLabel.score + "円";
     },
 
     onenterframe: function () {
         this.y -= 0.1;
         if (this.time > 30) {
+            // ラベルアニメーション
             mainScene.stage.removeChild(this)
         }
         this.time += 1;
@@ -602,12 +622,10 @@ var Item = Class.create(Sprite, {
         this.bottom = this.y+this.height;   // 下
         // console.log("x: "+this.x+" y: "+this.y);
         if (mainScene.player.intersect(this)) {
-            var label = new ScoreUpLabel(100)
+            var label = new ScoreUpLabel(10000)
             label.moveTo(this.x, this.y)
             mainScene.stage.removeChild(this)
             mainScene.stage.addChild(label);
-            // mainScene.scoreLabel.score += (10 * this.opacity);
-            // mainScene.scoreLabel.text = "SCORE : " + mainScene.scoreLabel.score; //スコアを加算(10点)
 
         }
 

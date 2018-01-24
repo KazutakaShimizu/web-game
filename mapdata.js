@@ -249,6 +249,6 @@ function createMapData() {
     return {"map": stage}
 }
 
-
+MAP_DATA = createMapData()
 
 
