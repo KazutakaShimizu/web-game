@@ -87,10 +87,38 @@ window.onload = function() {
         console.log("onload");
         // タイトルシーン
         var titleScene = setupTitleScene(game.rootScene);
-        // var titleScene = new TitleScene();
-        // game.pushScene(titleScene);
+        var tick = 0;
+        titleScene.onenterframe = function(){
+            if (tick % 20 === 0) {
+                titleScene.background = new Sprite(BACKGROUND_WIDTH,BACKGROUND_HEIGHT);
+                titleScene.background.x = 0;
+                titleScene.background.y = 0;
+                if (titleScene.backgroundNumber == 1) {
+                    titleScene.background = game.assets[TITLE_BACKGROUND_IMAGE02];
+                    titleScene.backgroundNumber = 2;
+                }else if(titleScene.backgroundNumber == 2){
+                    titleScene.background = game.assets[TITLE_BACKGROUND_IMAGE03];
+                    titleScene.backgroundNumber = 3;
+                }else if(titleScene.backgroundNumber == 3){
+                    titleScene.background = game.assets[TITLE_BACKGROUND_IMAGE04];
+                    titleScene.backgroundNumber = 4;
+                }else if(titleScene.backgroundNumber == 4){
+                    titleScene.background = game.assets[TITLE_BACKGROUND_IMAGE05];
+                    titleScene.backgroundNumber = 5;
+                }else if(titleScene.backgroundNumber == 5){
+                    titleScene.background = game.assets[TITLE_BACKGROUND_IMAGE06];
+                    titleScene.backgroundNumber = 6;
+                }else if(titleScene.backgroundNumber == 6){
+                    titleScene.background = game.assets[TITLE_BACKGROUND_IMAGE01];
+                    titleScene.backgroundNumber = 1;
+                }
+                titleScene.addChild(titleScene.background);
+            }
+            tick ++; 
+        }
 
         titleScene.addEventListener('touchstart', function() {
+            console.log("x");
             game.removeScene(mainScene);
             mainScene = new MainScene();
             game.replaceScene(mainScene)
@@ -109,6 +137,8 @@ function setupTitleScene(titleScene) {
     background.image = game.assets[TITLE_BACKGROUND_IMAGE01];
     background.x = 0;
     background.y = 0;
+    titleScene.tick = 0;
+    titleScene.backgroundNumber = 1;
     titleScene.addChild(background);
     return titleScene;
 }
