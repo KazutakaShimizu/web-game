@@ -228,7 +228,6 @@ var stage10 = [
 
 
 function createMapData() {
-
     var stage = stage1;
     var numberOfElement = 11;
 

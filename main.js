@@ -83,7 +83,6 @@ window.onload = function() {
         // メインシーン
         mainScene = new MainScene();
         mainScene.onclear = function () {
-            console.log("Clear !");
             game.pushScene(clearScene);
         }
 
@@ -91,7 +90,6 @@ window.onload = function() {
             console.log("GameOver !");
             game.popScene();
         }
-
         // クリアーシーン
         clearScene = new ClearScene();
     },
@@ -153,6 +151,7 @@ var MainScene = enchant.Class.create(enchant.Scene, {
     },
 
     setupEnemy: function () {
+        this.stage.addChild(new Enemy2(400,SCREEN_HEIGHT-32-32));
         this.stage.addChild(new Enemy1(900,SCREEN_HEIGHT-32-32-10));
         this.stage.addChild(new Enemy2(1100,SCREEN_HEIGHT-32-32));
         this.stage.addChild(new Enemy2(1400,SCREEN_HEIGHT-32-32));
@@ -428,10 +427,13 @@ var Enemy1 = Class.create(Sprite, {
         this.isUp = true;
         this.isLeft = true
         this.isIntersect = false;
+        this.isCheckInitialPosition = false;
     },
+
 
     // フレームを描画する時に呼ばれるメソッド
     onenterframe: function () {
+
         this.left = this.x;               // キャラクターの左端
         this.right = this.x+this.width;    // 右
         this.top   = this.y;               // 上
@@ -484,15 +486,22 @@ var Enemy1 = Class.create(Sprite, {
         if (mainScene.player.intersect(this)) {
             if (!this.isIntersect) {
                 this.isIntersect = true;
-                console.log("intersect");
                 mainScene.player.death();
+            }
+        }
+
+        if (!this.isCheckInitialPosition) {
+            if (mainScene.map.hitTest(this.right, this.bottom, this.left, this.top)) {
+                this.x -= 30;
+            }else{
+                this.isCheckInitialPosition = true;
             }
         }
     },
 
     // 弾が当たった場合
     onhit: function () {
-        console.log("hoge");
+        // console.log("hoge");
     }
 })
 
@@ -507,6 +516,7 @@ var Enemy2 = Class.create(Sprite, {
         this.dir = DIR_LEFT;
         this.scaleX = -1;
         this.isIntersect = false;
+        this.isCheckInitialPosition = false;
     },
 
     onenterframe: function () {
@@ -534,6 +544,14 @@ var Enemy2 = Class.create(Sprite, {
             if (!this.isIntersect) {
                 this.isIntersect = true;
                 mainScene.player.death();
+            }
+        }
+
+        if (!this.isCheckInitialPosition) {
+            if (mainScene.map.hitTest(this.right, this.bottom, this.left, this.top)) {
+                this.x -= 30;
+            }else{
+                this.isCheckInitialPosition = true;
             }
         }
     },
