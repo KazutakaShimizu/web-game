@@ -469,11 +469,17 @@ var Player = enchant.Class.create(enchant.Sprite, {
         this.removeEventListener(Event.ENTER_FRAME, this.normal); // 一旦Playerのフレーム更新処理を削除
         // var isOnce = true;
         var tick = 1;
-        var jump = 0;
+        var jump1 = 15;
+        var flag1 = false;
+        var jump2 = 30;
+        var flag2 = false;
+        var jump3 = 45;
+        var flag3 = false;
+
         // フレームごとの処理
         this.frame = 0;
-        this.addEventListener(Event.ENTER_FRAME, function () { //Playerのフレーム更新処理を新しく作成
         this.y = SCREEN_HEIGHT-32-32;
+        this.addEventListener(Event.ENTER_FRAME, function () { //Playerのフレーム更新処理を新しく作成
 
         if (this.x < mainScene.map.width - 315) { // 歩かせる処理
             if (tick % 10 === 0) {
@@ -481,40 +487,89 @@ var Player = enchant.Class.create(enchant.Sprite, {
                 // 画像の切り替え
                 if (this.frame == 0) {
                     this.frame = 1;
-                }else{
+                } else {
                     this.frame = 0;
                 }
             }
-        }else{// ジャンプさせる処理
-            if(this.x < mainScene.map.width - 210) {
-                if (jump > 10) {
-                    if (tick % 10 === 0) {
-                        this.x += 5;
-                        // 画像の切り替え
-                        if (this.frame == 0) {
-                            this.frame = 1;
-                        }else{
-                            this.frame = 0;
-                        }
-                    }
-                }else{
-                    if (tick % 20 === 0) {
-                        if (this.frame == 2) {
-                            this.frame = 1;
-                            this.y = SCREEN_HEIGHT-32-32;
-                        }else{
-                            this.frame = 2;
-                            this.y = SCREEN_HEIGHT-32-64;
-                        }
-                        jump ++;
-                    }
+        } else if (this.x < mainScene.map.width - 215 && flag3) {
+            if (tick % 10 === 0) {
+                this.x += 5;
+                // 画像の切り替え
+                if (this.frame == 0) {
+                    this.frame = 1;
+                } else {
+                    this.frame = 0;
                 }
-            }else{
-                if (tick % 30 === 0) {
-                    clearScene = new ClearScene();
-                    game.pushScene(clearScene);
-                }
+                console.log(this.x);
             }
+        } else if (this.x >= 3949 && flag3) {
+            if (tick % 30 === 0) {
+                clearScene = new ClearScene();
+                game.pushScene(clearScene);
+            }
+        }else{
+            // ジャンプさせる処理
+            if (tick % 2 === 0 && jump1 > 0 && !flag1) {
+                this.y -= 5;
+                jump1--;
+            } else if (jump1 <= 0 && !flag1) {
+                this.y += 5;
+            }
+
+            if (this.y > SCREEN_HEIGHT-32-32 && !flag1) {
+                flag1 = true;
+            }
+
+            if (tick % 2 === 0 && jump2 > 0 && flag1 &&!flag2) {
+                this.y -= 5;
+                jump2--;
+            } else if (jump2 <= 0 && flag1 && !flag2) {
+                this.y += 5;
+            }
+
+            if (this.y > SCREEN_HEIGHT-32-32 && flag1 && !flag2) {
+                flag2 = true;
+            }
+
+            if (tick % 2 === 0 && jump3 > 0 && flag1 && flag2 && !flag3) {
+                this.y -= 5;
+                jump3--;
+            } else if (jump3 <= 0 && flag1 && flag2 && !flag3) {
+                this.y += 5;
+            }
+
+            if (this.y > SCREEN_HEIGHT-32-32 && flag1 && flag2 && !flag3) {
+                flag3 = true;
+            }
+            // if(this.x < mainScene.map.width - 210) {
+            //     if (jump > 10) {
+            //         if (tick % 10 === 0) {
+            //             this.x += 5;
+            //             // 画像の切り替え
+            //             if (this.frame == 0) {
+            //                 this.frame = 1;
+            //             }else{
+            //                 this.frame = 0;
+            //             }
+            //         }
+            //     }else{
+            //         if (tick % 20 === 0) {
+            //             if (this.frame == 2) {
+            //                 this.frame = 1;
+            //                 this.y = SCREEN_HEIGHT-32-32;
+            //             }else{
+            //                 this.frame = 2;
+            //                 this.y = SCREEN_HEIGHT-32-64;
+            //             }
+            //             jump ++;
+            //         }
+            //     }
+            // }else{
+            //     if (tick % 30 === 0) {
+            //         clearScene = new ClearScene();
+            //         game.pushScene(clearScene);
+            //     }
+            // }
         }
         tick++;
 
