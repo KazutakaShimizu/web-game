@@ -45,7 +45,7 @@ var PLAYER_IMAGE = "images/testkun09.png";
 var ENEMY_IMAGE = "images/enemy06.png";
 var MAP_IMAGE = "images/map2.png";
 var ICON_IMAGE = "images/icon0.gif";
-var BACKGROUND_IMAGE = "images/bg_4124.png"
+var BACKGROUND_IMAGE = "images/map03.png"
 var DEATH00_IMAGE = "images/death00.png";
 var DEATH01_IMAGE = "images/death01.png";
 var MESSAGE_IMAGE = "images/testmessage.png";
@@ -94,14 +94,11 @@ window.onload = function() {
 };
 
 function setupTitleScene(titleScene) {
-
     titleScene.backgroundColor = "#FF0000";
     var titleMessage = new Label("Hello, Title Scene");
     titleMessage.x = 10;
     titleMessage.y = 10;
-
     titleScene.addChild(titleMessage);
-
     return titleScene;
 }
 
@@ -130,7 +127,7 @@ var MainScene = enchant.Class.create(enchant.Scene, {
         this.player = new Player();
         this.stage.addChild(background)
         this.stage.addChild(this.map);
-        this.setupEnemy();
+        // this.setupEnemy();
         this.setupCoin();
         this.stage.addChild(this.player);
         this.addChild(this.stage);

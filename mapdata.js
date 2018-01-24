@@ -187,23 +187,27 @@ var stage10 = [
 
 
 var stage = stage1;
-var numberOfElement = 12;
+var numberOfElement = 11;
 
+// elementを１２個結合させる
 for (var i = 0; i < numberOfElement; i++) {
+    // 発生させる乱数の設定
     var min = 2 ;
     var max = 9 ;
     var random = Math.floor( Math.random() * (max + 1 - min) ) + min ;
     var index = 0;
+    // console.log(eval("stage" + random));
     for(value in eval("stage" + random)) {
-        if(i == numberOfElement - 1 && index == stage.length - 1){
-            stage[index] = stage[index].concat(stage10);
-        }else{
-            // Array.prototype.push.apply(stage[index], eval("stage" + random + "[index]"));
-            stage[index] = stage[index].concat(eval("stage" + random + "[index]"));
-        }
+        stage[index] = stage[index].concat(eval("stage" + random + "[index]"));
         index ++;
     }
 }
+var index = 0
+for(value in stage10){
+    stage[index] = stage[index].concat(stage10[index]);
+    index ++;
+}
+
 
 var STAGE = {"map": stage};
 
