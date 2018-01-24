@@ -19,9 +19,9 @@ var TILE_HEIGHT = 16
 var ITEM_WIDTH = 16
 var ITEM_HEIGHT = 16
 
-var BULLET_WIDTH = 8;
-var BULLET_HEIGHT = 8;
-var BULLET_SPEED = 6;
+var BULLET_WIDTH = 8
+var BULLET_HEIGHT = 8
+var BULLET_SPEED = 6
 
 var MESSAGE_WIDTH = 50
 var MESSAGE_HEIGHT = 20
@@ -112,22 +112,24 @@ var MainScene = enchant.Class.create(enchant.Scene, {
     onenter: function () {
         var background = new Sprite(BACKGROUND_WIDTH,BACKGROUND_HEIGHT)
         background.image = game.assets[BACKGROUND_IMAGE]
-        background.moveTo(0,-65);
+        background.moveTo(0,0);
         background.onenterframe = function () {}
 
         //グループ（ステージ）の生成
         this.stage = new Group();
+        this.stage.y = 0;
         // mapデータの作成
         this.map = new Map(TILE_WIDTH, TILE_HEIGHT);
         this.map.image = game.assets[MAP_IMAGE];
-        this.map.loadData(STAGE.map);
+        var stageData = createMapData();
+        this.map.loadData(stageData.map);
         this.scoreLabel = this.setupScoreLabel();
 
         // Playerデータの作成
         this.player = new Player();
         this.stage.addChild(background)
         this.stage.addChild(this.map);
-        // this.setupEnemy();
+        this.setupEnemy();
         this.setupCoin();
         this.stage.addChild(this.player);
         this.addChild(this.stage);
@@ -137,12 +139,11 @@ var MainScene = enchant.Class.create(enchant.Scene, {
     onenterframe: function () {
         //ステージのXY座標の指定（カメラ）。つまるところ、ステージの背景を左側に動かしている
         var x = Math.min((game.width  - 16) / 2 - this.player.x, 0);
-        var y = Math.min((game.height - 16) / 2 - this.player.y, 0);
+        // var y = Math.min((game.height - 16) / 2 - this.player.y, 0);
         // console.log("x: "+x+" y: "+y);
         x = Math.max(game.width,  x + this.map.width) - this.map.width;
-        y = Math.max(game.height, y + this.map.height) - this.map.height;
+        // y = Math.max(game.height, y + this.map.height) - this.map.height;
         this.stage.x = x;
-        this.stage.y = y;
     },
 
     setupEnemy: function () {
@@ -195,7 +196,7 @@ var Player = enchant.Class.create(enchant.Sprite, {
         this.scaleX *= 1;
         this.scaleY *= 1;
         this.x = 2 * 4;
-        this.y = SCREEN_HEIGHT-32-32-32-32;
+        this.y = SCREEN_HEIGHT-32-32;
         this.dir   = DIR_DOWN;
         this.anim  = [
             0,  1,  2,  1, //左
@@ -340,7 +341,7 @@ var Player = enchant.Class.create(enchant.Sprite, {
             death00.y = this.y;
             var tick = 1;
             var isf = true;
-            mainScene.player.moveTo(0, 400);
+            mainScene.stage.removeChild(mainScene.player);
             death00.addEventListener(Event.ENTER_FRAME, function () {
                 if (isf && tick % 40 === 0) {
                     isf = false;
@@ -572,17 +573,17 @@ var Coin = Class.create(Sprite, {
 
     onenterframe: function () {
         // console.log("x: "+this.x+" y: "+this.y);
-        if (mainScene.player.x < (this.x +8)) {
-            if (mainScene.player.x > (this.x -24))
-                if (mainScene.player.y < this.y)
-                    if (mainScene.player.y > (this.y -32)){
-                        var label = new ScoreUpLabel(100)
-                        label.moveTo(this.x, this.y)
-                        mainScene.stage.addChild(label);
-                        // mainScene.scoreLabel.score += (10 * this.opacity);
-                        // mainScene.scoreLabel.text = "SCORE : " + mainScene.scoreLabel.score; //スコアを加算(10点)
-                        this.opacity = 0; //消す
-                    }};
+        // if (mainScene.player.x < (this.x +8)) {
+        //     if (mainScene.player.x > (this.x -24))
+        //         if (mainScene.player.y < this.y)
+        //             if (mainScene.player.y > (this.y -32)){
+        //                 var label = new ScoreUpLabel(100)
+        //                 label.moveTo(this.x, this.y)
+        //                 mainScene.stage.addChild(label);
+        //                 // mainScene.scoreLabel.score += (10 * this.opacity);
+        //                 // mainScene.scoreLabel.text = "SCORE : " + mainScene.scoreLabel.score; //スコアを加算(10点)
+        //                 this.opacity = 0; //消す
+        //             }};
 
     }
 })
