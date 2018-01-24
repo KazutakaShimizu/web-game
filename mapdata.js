@@ -235,7 +235,6 @@ function createMapData() {
         var min = 2 ;
         var max = 9 ;
         var random = Math.floor( Math.random() * (max + 1 - min) ) + min ;
-        console.log(random);
         var index = 0;
         for(value in eval("stage" + random)) {
             if(i == numberOfElement - 1 && index == stage.length - 1){
