@@ -50,7 +50,8 @@ var ENEMY_IMAGE = "images/enemy06.png";
 var ICON_IMAGE = "images/icon0.gif";
 var MAP_IMAGE = "images/map3.png";
 var ITEM_IMAGE = "images/return.png";
-var BACKGROUND_IMAGE = "images/bg_4124.png"
+var BACKGROUND_IMAGE = "images/map03.png"
+var TITLE_BACKGROUND_IMAGE = "images/top01.gif"
 
 var DEATH00_IMAGE = "images/death00.png";
 var DEATH01_IMAGE = "images/death01.png";
@@ -61,6 +62,7 @@ var ASSETS = [
     ITEM_IMAGE, BACKGROUND_IMAGE,
     MESSAGE_IMAGE, ENEMY_IMAGE,
     DEATH00_IMAGE,DEATH01_IMAGE,
+    TITLE_BACKGROUND_IMAGE,
 ];
 
 window.onload = function() {
@@ -85,26 +87,25 @@ window.onload = function() {
         mainScene.onclear = function () {
             game.pushScene(clearScene);
         }
-
         mainScene.onGameOver = function () {
-            console.log("GameOver !");
             game.popScene();
         }
         // クリアーシーン
         clearScene = new ClearScene();
-    },
 
+    },
     game.start();
 };
 
 function setupTitleScene(titleScene) {
-    titleScene.backgroundColor = "#FF0000";
-    var titleMessage = new Label("Hello, Title Scene");
-    titleMessage.x = 10;
-    titleMessage.y = 10;
-    titleScene.addChild(titleMessage);
+    var background = new Sprite(BACKGROUND_WIDTH,BACKGROUND_HEIGHT);
+    background.image = game.assets[TITLE_BACKGROUND_IMAGE];
+    background.x = 0;
+    background.y = 0;
+    titleScene.addChild(background);
     return titleScene;
 }
+
 
 var MainScene = enchant.Class.create(enchant.Scene, {
 
@@ -133,7 +134,7 @@ var MainScene = enchant.Class.create(enchant.Scene, {
         this.player = new Player();
         this.stage.addChild(background)
         this.stage.addChild(this.map);
-        this.setupEnemy();
+        // this.setupEnemy();
         this.setupCoin();
         this.stage.addChild(this.player);
         this.addChild(this.stage);
@@ -176,8 +177,8 @@ var MainScene = enchant.Class.create(enchant.Scene, {
     },
 
     setupScoreLabel: function () {
-
-        var scoreLabel = new Label("ゴールまで : "+this.map.width);
+        console.log(0);
+        var scoreLabel = new Label("ゴールまで : "+this.map.width - 1500);
         scoreLabel.font = "16px Tahoma";
         scoreLabel.color = "break";
         scoreLabel.x = 10;	// X座標
@@ -189,7 +190,9 @@ var MainScene = enchant.Class.create(enchant.Scene, {
 })
 
 var ClearScene = enchant.Class.create(enchant.Scene, {
-
+    onenter: function () {
+        this.backgroundColor = "#FF0000";
+    },
 })
 
 var Player = enchant.Class.create(enchant.Sprite, {
@@ -303,7 +306,7 @@ var Player = enchant.Class.create(enchant.Sprite, {
         }
 
         //一番右端まで到達した場合
-        if(this.x > (mainScene.map.width-PLAYER_WIDTH*3) && !this.isClear) {
+        if(this.x > (mainScene.map.width-400) && !this.isClear) {
             this.isClear = true;
             this.clear();
         }
@@ -323,7 +326,7 @@ var Player = enchant.Class.create(enchant.Sprite, {
         // }
 
         // ラベルアニメーション
-        mainScene.scoreLabel.score = mainScene.map.width - this.x - 28;
+        mainScene.scoreLabel.score = mainScene.map.width - this.x - 396;
         mainScene.scoreLabel.text = "天竺まであと : " + mainScene.scoreLabel.score + "km"; //スコアを加算(10点)
 
         // アニメーションフレームの指定
@@ -385,41 +388,62 @@ var Player = enchant.Class.create(enchant.Sprite, {
         // this.moveTo(this.x, SCREEN_HEIGHT/2);
         this.addEventListener(Event.ENTER_FRAME, this.showDeath00)
     },
-
-    // v++;
-    // if (tick % 3 === 0 && v < 3) {
-    //
-    //     this.scale(v, v);
-    // } else if (v > 50 && isOnce) {
-    //     isOnce = false;
-    //     var e = new enchant.Event("GameOver")
-    //     mainScene.dispatchEvent(e)
-    // }
-    // tick++;
-
     // Gameをクリアーした時
     clear: function () {
         this.removeEventListener(Event.ENTER_FRAME, this.normal); // 一旦Playerのフレーム更新処理を削除
-        var isOnce = true;
+        // var isOnce = true;
         var tick = 1;
+        var jump = 0;
+        // フレームごとの処理
+        this.frame = 0;
         this.addEventListener(Event.ENTER_FRAME, function () { //Playerのフレーム更新処理を新しく作成
+        this.y = SCREEN_HEIGHT-32-32;
 
-            if (isOnce) {
-                isOnce = false;
-                var e = new enchant.Event("clear")
-                mainScene.dispatchEvent(e)
+        if (this.x < mainScene.map.width - 315) { // 歩かせる処理
+            if (tick % 10 === 0) {
+                this.x += 5;
+                // 画像の切り替え
+                if (this.frame == 0) {
+                    this.frame = 1;
+                }else{
+                    this.frame = 0;
+                }
             }
-
-            if (tick) {
-
+        }else{// ジャンプさせる処理
+            if(this.x < mainScene.map.width - 210) {
+                if (jump > 10) {
+                    if (tick % 10 === 0) {
+                        this.x += 5;
+                        // 画像の切り替え
+                        if (this.frame == 0) {
+                            this.frame = 1;
+                        }else{
+                            this.frame = 0;
+                        }
+                    }
+                }else{
+                    if (tick % 20 === 0) {
+                        if (this.frame == 2) {
+                            this.frame = 1;
+                            this.y = SCREEN_HEIGHT-32-32;
+                        }else{
+                            this.frame = 2;
+                            this.y = SCREEN_HEIGHT-32-64;
+                        }
+                        jump ++;
+                    }
+                }
+            }else{
+                if (tick % 30 === 0) {
+                    clearScene = new ClearScene();
+                    game.pushScene(clearScene);
+                }
             }
-
-            tick++;
-
+        }
+        tick++;
 
         }.bind(this));
     }
-
 });
 
 var Enemy1 = Class.create(Sprite, {
@@ -618,7 +642,6 @@ var Item = Class.create(Sprite, {
             // mainScene.scoreLabel.text = "SCORE : " + mainScene.scoreLabel.score; //スコアを加算(10点)
             mainScene.stage.removeChild(this)
         }
-
     }
 })
 
