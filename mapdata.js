@@ -226,24 +226,29 @@ var stage10 = [
 ]
 
 
-var stage = stage1;
-var numberOfElement = 12;
+function createMapData() {
 
-for (var i = 0; i < numberOfElement; i++) {
-    var min = 2 ;
-    var max = 9 ;
-    var random = Math.floor( Math.random() * (max + 1 - min) ) + min ;
-    var index = 0;
-    for(value in eval("stage" + random)) {
-        if(i == numberOfElement - 1 && index == stage.length - 1){
-            stage[index] = stage[index].concat(stage10);
-        }else{
-            // Array.prototype.push.apply(stage[index], eval("stage" + random + "[index]"));
-            stage[index] = stage[index].concat(eval("stage" + random + "[index]"));
+    var stage = stage1;
+    var numberOfElement = 12;
+
+    for (var i = 0; i < numberOfElement; i++) {
+        var min = 2 ;
+        var max = 9 ;
+        var random = Math.floor( Math.random() * (max + 1 - min) ) + min ;
+        console.log(random);
+        var index = 0;
+        for(value in eval("stage" + random)) {
+            if(i == numberOfElement - 1 && index == stage.length - 1){
+                stage[index] = stage[index].concat(stage10);
+            }else{
+                // Array.prototype.push.apply(stage[index], eval("stage" + random + "[index]"));
+                stage[index] = stage[index].concat(eval("stage" + random + "[index]"));
+            }
+            index ++;
         }
-        index ++;
     }
+
+    return {"map": stage}
 }
 
-var STAGE = {"map": stage};
 

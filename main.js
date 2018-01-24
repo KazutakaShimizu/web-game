@@ -124,7 +124,8 @@ var MainScene = enchant.Class.create(enchant.Scene, {
         // mapデータの作成
         this.map = new Map(TILE_WIDTH, TILE_HEIGHT);
         this.map.image = game.assets[MAP_IMAGE];
-        this.map.loadData(STAGE.map);
+        var stageData = createMapData();
+        this.map.loadData(stageData.map);
         this.scoreLabel = this.setupScoreLabel();
 
         // Playerデータの作成
