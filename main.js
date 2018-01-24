@@ -141,27 +141,21 @@ var TitleScene = enchant.Class.create(enchant.Scene, {
             this.background.x = 0;
             this.background.y = 0;
             if (this.backgroundNumber == 1) {
-                console.log(1);
                 this.background = game.assets[TITLE_BACKGROUND_IMAGE02];
                 this.backgroundNumber = 2;
             }else if(this.backgroundNumber == 2){
-                console.log(2);
                 this.background = game.assets[TITLE_BACKGROUND_IMAGE03];
                 this.backgroundNumber = 3;
             }else if(this.backgroundNumber == 3){
-                console.log(3);
                 this.background = game.assets[TITLE_BACKGROUND_IMAGE04];
                 this.backgroundNumber = 4;
             }else if(this.backgroundNumber == 4){
-                console.log(4);
                 this.background = game.assets[TITLE_BACKGROUND_IMAGE05];
                 this.backgroundNumber = 5;
             }else if(this.backgroundNumber == 5){
-                console.log(5);
                 this.background = game.assets[TITLE_BACKGROUND_IMAGE06];
                 this.backgroundNumber = 6;
             }else if(this.backgroundNumber == 6){
-                console.log(6);
                 this.background = game.assets[TITLE_BACKGROUND_IMAGE01];
                 this.backgroundNumber = 1;
             }
