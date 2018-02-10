@@ -351,7 +351,7 @@ var Player = enchant.Class.create(enchant.Sprite, {
             this.y -= this.gravity; // 一旦キャラクターを重力値分だけ、上に移動させる
             //console.log(this.gravity);
 
-            if (mainScene.map.hitTest(this.centerX, this.top)) { // ジャンプ中に天井（障害物）にぶつかった場合、
+            if (mainScene.map.hitTest(this.centerX, this.top) || mainScene.map.hitTest(this.right-4, this.top) || mainScene.map.hitTest(this.left+4, this.top)) { // ジャンプ中に天井（障害物）にぶつかった場合、
 
                 this.y += this.gravity; // 上に移動した分、下に戻す
 
@@ -370,10 +370,10 @@ var Player = enchant.Class.create(enchant.Sprite, {
             //     this.y += 3;
             // }
 
-            if (!mainScene.map.hitTest(this.centerX, this.bottom) && !mainScene.map.hitTest(this.right, this.bottom) && !mainScene.map.hitTest(this.left, this.bottom)) { // 地面にぶつからなかった場合、下に落ちる(食い込み防止)
+            if (!mainScene.map.hitTest(this.centerX, this.bottom) && !mainScene.map.hitTest(this.right-4, this.bottom) && !mainScene.map.hitTest(this.left+4, this.bottom)) { // 地面にぶつからなかった場合、下に落ちる(食い込み防止)
                 this.y += 1;
             }
-            if (!mainScene.map.hitTest(this.centerX, this.bottom) && !mainScene.map.hitTest(this.right, this.bottom) && !mainScene.map.hitTest(this.left, this.bottom)) { // 地面にぶつからなかった場合、下に落ちる
+            if (!mainScene.map.hitTest(this.centerX, this.bottom) && !mainScene.map.hitTest(this.right-4, this.bottom) && !mainScene.map.hitTest(this.left+4, this.bottom)) { // 地面にぶつからなかった場合、下に落ちる
                 this.y += 3;
             }
         }
@@ -383,7 +383,7 @@ var Player = enchant.Class.create(enchant.Sprite, {
         //左へ移動
         if (input.left) {
             this.dir = DIR_LEFT;
-            if (!mainScene.map.hitTest(this.left, this.centerY)){ //左の生涯物にぶつからなかった場合、左に移動する
+            if (!mainScene.map.hitTest(this.left+2, this.centerY) && !mainScene.map.hitTest(this.left+2, this.bottom-4)){ //左の生涯物にぶつからなかった場合、左に移動する
                 this.x -= 4;
             }
             this.scaleX = -1;
@@ -392,7 +392,7 @@ var Player = enchant.Class.create(enchant.Sprite, {
         //右へ移動
         if (input.right) {
             this.dir = DIR_RIGHT;
-            if (!mainScene.map.hitTest(this.right-1, this.centerY)){ //右の生涯物にぶつからなかった場合、右に移動する
+            if (!mainScene.map.hitTest(this.right-2, this.centerY) && !mainScene.map.hitTest(this.right-2, this.bottom-4)){ //右の生涯物にぶつからなかった場合、右に移動する
                 this.x += 4;
             }
             this.scaleX = 1;
@@ -404,7 +404,7 @@ var Player = enchant.Class.create(enchant.Sprite, {
 
         if (input.up) {
             this.dir = DIR_UP;
-            if (mainScene.map.hitTest(this.centerX, this.bottom)) { // キャラクタが地面についている場合、ジャンプさせる
+            if (mainScene.map.hitTest(this.centerX, this.bottom) || mainScene.map.hitTest(this.left+2, this.bottom) || mainScene.map.hitTest(this.right-2, this.bottom)) { // キャラクタが地面についている場合、ジャンプさせる
                 this.gravity = 13; // 重力値をセット
             }
         }
@@ -500,7 +500,7 @@ var Player = enchant.Class.create(enchant.Sprite, {
         var flag1 = false;
         var jump2 = 30;
         var flag2 = false;
-        var jump3 = 45;
+        var jump3 = 25;
         var flag3 = false;
 
         // フレームごとの処理
@@ -559,10 +559,10 @@ var Player = enchant.Class.create(enchant.Sprite, {
             }
 
             if (tick % 2 === 0 && jump3 > 0 && flag1 && flag2 && !flag3) {
-                this.y -= 5;
+                this.y -= 8;
                 jump3--;
             } else if (jump3 <= 0 && flag1 && flag2 && !flag3) {
-                this.y += 5;
+                this.y += 8;
             }
 
             if (this.y > SCREEN_HEIGHT-32-32 && flag1 && flag2 && !flag3) {
