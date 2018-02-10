@@ -498,7 +498,7 @@ var Player = enchant.Class.create(enchant.Sprite, {
         var tick = 1;
         var jump1 = 15;
         var flag1 = false;
-        var jump2 = 30;
+        var jump2 = 20;
         var flag2 = false;
         var jump3 = 25;
         var flag3 = false;
@@ -548,10 +548,10 @@ var Player = enchant.Class.create(enchant.Sprite, {
             }
 
             if (tick % 2 === 0 && jump2 > 0 && flag1 &&!flag2) {
-                this.y -= 5;
+                this.y -= 8;
                 jump2--;
             } else if (jump2 <= 0 && flag1 && !flag2) {
-                this.y += 5;
+                this.y += 8;
             }
 
             if (this.y > SCREEN_HEIGHT-32-32 && flag1 && !flag2) {
