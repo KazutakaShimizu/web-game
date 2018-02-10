@@ -56,6 +56,7 @@ var CLEAR_BACKGROUND_IMAGE = "images/clear.png"
 var DEATH00_IMAGE = "images/death00.png";
 var DEATH01_IMAGE = "images/death01.png";
 var MESSAGE_IMAGE = "images/testmessage.png";
+var ENEMIES = [];
 
 var ASSETS = [
     PLAYER_IMAGE, MAP_IMAGE,
@@ -215,7 +216,7 @@ var MainScene = enchant.Class.create(enchant.Scene, {
         this.player = new Player();
         this.stage.addChild(background)
         this.stage.addChild(this.map);
-        this.setupEnemy();
+        // this.setupEnemy();
         this.setupCoin();
         this.stage.addChild(this.player);
         this.addChild(this.stage);
@@ -254,13 +255,22 @@ var MainScene = enchant.Class.create(enchant.Scene, {
 
     setupCoin: function () {
         this.stage.addChild(new Item(CAMERA_FRAME, 96, 160));
-        this.stage.addChild(new Item(VIDEO_FRAME, 433, 164));
-        this.stage.addChild(new Item(PEN_FRAME, 844, 202));
-        this.stage.addChild(new Item(MONEY_FRAME, 1287, 100));
+        this.stage.addChild(new Item(VIDEO_FRAME, 345, 164));
+        this.stage.addChild(new Item(PEN_FRAME, 500, 202));
+        this.stage.addChild(new Item(MONEY_FRAME, 760, 100));
+        this.stage.addChild(new Item(CAMERA_FRAME, 912, 160));
+        this.stage.addChild(new Item(VIDEO_FRAME, 1160, 164));
+        this.stage.addChild(new Item(PEN_FRAME, 1410, 202));
+        this.stage.addChild(new Item(MONEY_FRAME, 1670, 100));
+        this.stage.addChild(new Item(CAMERA_FRAME, 1930, 160));
+        this.stage.addChild(new Item(VIDEO_FRAME, 2230, 164));
+        this.stage.addChild(new Item(PEN_FRAME, 2500, 202));
+        this.stage.addChild(new Item(MONEY_FRAME, 2750, 100));
+        this.stage.addChild(new Item(CAMERA_FRAME, 3030, 160));
+        this.stage.addChild(new Item(VIDEO_FRAME, 3330, 160));
     },
 
     setupScoreLabel: function () {
-        console.log(0);
         var scoreLabel = new Label("ゴールまで : "+this.map.width - 1500);
         scoreLabel.font = "16px Tahoma";
         scoreLabel.color = "break";
@@ -287,7 +297,6 @@ var MainScene = enchant.Class.create(enchant.Scene, {
 var ClearScene = enchant.Class.create(enchant.Scene, {
 
     onenter: function () {
-
         var background = new Sprite(SCREEN_WIDTH,SCREEN_HEIGHT);
         background.image = game.assets[CLEAR_BACKGROUND_IMAGE];
         background.x = 0;
@@ -338,7 +347,7 @@ var Player = enchant.Class.create(enchant.Sprite, {
         this.centerY = this.top + (PLAYER_HEIGHT/2)
 
         if (this.gravity > 0) { // 上に向かう（ジャンプ中）
-
+            this.frame = 2;
             this.y -= this.gravity; // 一旦キャラクターを重力値分だけ、上に移動させる
             //console.log(this.gravity);
 
@@ -498,8 +507,7 @@ var Player = enchant.Class.create(enchant.Sprite, {
         this.frame = 0;
         this.y = SCREEN_HEIGHT-32-32;
         this.addEventListener(Event.ENTER_FRAME, function () { //Playerのフレーム更新処理を新しく作成
-
-        if (this.x < mainScene.map.width - 315) { // 歩かせる処理
+        if (this.x < mainScene.map.width - 250) { // 歩かせる処理
             if (tick % 10 === 0) {
                 this.x += 5;
                 // 画像の切り替え
@@ -509,7 +517,7 @@ var Player = enchant.Class.create(enchant.Sprite, {
                     this.frame = 0;
                 }
             }
-        } else if (this.x < mainScene.map.width - 215 && flag3) {
+        } else if (this.x < mainScene.map.width - 150 && flag3) {
             if (tick % 10 === 0) {
                 this.x += 5;
                 // 画像の切り替え
@@ -519,14 +527,16 @@ var Player = enchant.Class.create(enchant.Sprite, {
                     this.frame = 0;
                 }
             }
-        } else if (this.x >= 3949 && flag3) {
+        } else if (this.x >= 3700 && flag3) {
             if (tick % 30 === 0) {
+                this.parentNode.removeChild();
                 clearScene = new ClearScene();
                 game.pushScene(clearScene);
             }
         }else{
             // ジャンプさせる処理
             if (tick % 2 === 0 && jump1 > 0 && !flag1) {
+                this.frame = 2;
                 this.y -= 5;
                 jump1--;
             } else if (jump1 <= 0 && !flag1) {
@@ -558,38 +568,8 @@ var Player = enchant.Class.create(enchant.Sprite, {
             if (this.y > SCREEN_HEIGHT-32-32 && flag1 && flag2 && !flag3) {
                 flag3 = true;
             }
-            // if(this.x < mainScene.map.width - 210) {
-            //     if (jump > 10) {
-            //         if (tick % 10 === 0) {
-            //             this.x += 5;
-            //             // 画像の切り替え
-            //             if (this.frame == 0) {
-            //                 this.frame = 1;
-            //             }else{
-            //                 this.frame = 0;
-            //             }
-            //         }
-            //     }else{
-            //         if (tick % 20 === 0) {
-            //             if (this.frame == 2) {
-            //                 this.frame = 1;
-            //                 this.y = SCREEN_HEIGHT-32-32;
-            //             }else{
-            //                 this.frame = 2;
-            //                 this.y = SCREEN_HEIGHT-32-64;
-            //             }
-            //             jump ++;
-            //         }
-            //     }
-            // }else{
-            //     if (tick % 30 === 0) {
-            //         clearScene = new ClearScene();
-            //         game.pushScene(clearScene);
-            //     }
-            // }
         }
         tick++;
-
         }.bind(this));
     }
 });
