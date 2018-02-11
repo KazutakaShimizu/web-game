@@ -216,7 +216,7 @@ var MainScene = enchant.Class.create(enchant.Scene, {
         this.player = new Player();
         this.stage.addChild(background)
         this.stage.addChild(this.map);
-        // this.setupEnemy();
+        this.setupEnemy();
         this.setupCoin();
         this.stage.addChild(this.player);
         this.addChild(this.stage);
@@ -235,21 +235,28 @@ var MainScene = enchant.Class.create(enchant.Scene, {
     },
 
     setupEnemy: function () {
-        this.stage.addChild(new Enemy2(400,SCREEN_HEIGHT-32-32));
-        this.stage.addChild(new Enemy1(900,SCREEN_HEIGHT-32-32-10));
-        this.stage.addChild(new Enemy2(1100,SCREEN_HEIGHT-32-32));
-        this.stage.addChild(new Enemy2(1400,SCREEN_HEIGHT-32-32));
-        this.stage.addChild(new Enemy1(1700,SCREEN_HEIGHT-32-32-10));
-        this.stage.addChild(new Enemy2(1800,SCREEN_HEIGHT-32-32));
-        this.stage.addChild(new Enemy2(2000,SCREEN_HEIGHT-32-32));
-        this.stage.addChild(new Enemy2(2300,SCREEN_HEIGHT-32-32));
-        this.stage.addChild(new Enemy1(2500,SCREEN_HEIGHT-32-32-10));
-        this.stage.addChild(new Enemy1(3000,SCREEN_HEIGHT-32-32-10));
-        this.stage.addChild(new Enemy1(3100,SCREEN_HEIGHT-32-32-10));
-        this.stage.addChild(new Enemy2(3200,SCREEN_HEIGHT-32-32));
-        this.stage.addChild(new Enemy2(3500,SCREEN_HEIGHT-32-32));
-        this.stage.addChild(new Enemy2(3800,SCREEN_HEIGHT-32-32));
-        this.stage.addChild(new Enemy2(3900,SCREEN_HEIGHT-32-32));
+
+        ENEMIES = [
+            new Enemy2(400,SCREEN_HEIGHT-32-32),
+            new Enemy1(900,SCREEN_HEIGHT-32-32-10),
+            new Enemy2(1100,SCREEN_HEIGHT-32-32),
+            new Enemy2(1400,SCREEN_HEIGHT-32-32),
+            new Enemy1(1700,SCREEN_HEIGHT-32-32-10),
+            new Enemy2(1800,SCREEN_HEIGHT-32-32),
+            new Enemy2(2000,SCREEN_HEIGHT-32-32),
+            new Enemy2(2300,SCREEN_HEIGHT-32-32),
+            new Enemy1(2500,SCREEN_HEIGHT-32-32-10),
+            new Enemy1(3000,SCREEN_HEIGHT-32-32-10),
+            new Enemy1(3100,SCREEN_HEIGHT-32-32-10),
+            new Enemy2(3200,SCREEN_HEIGHT-32-32),
+            new Enemy2(3500,SCREEN_HEIGHT-32-32),
+            new Enemy2(3800,SCREEN_HEIGHT-32-32),
+            new Enemy2(3900,SCREEN_HEIGHT-32-32)
+        ]
+
+        for(var i=0; i < ENEMIES.length; i++) {
+            this.stage.addChild(ENEMIES[i]);
+        }
 
     },
 
@@ -459,6 +466,7 @@ var Player = enchant.Class.create(enchant.Sprite, {
             var tick = 1;
             var isf = true;
             mainScene.stage.removeChild(mainScene.player);
+            
             death00.addEventListener(Event.ENTER_FRAME, function () {
 
                 if (isf && tick % 40 === 0) {
@@ -493,7 +501,13 @@ var Player = enchant.Class.create(enchant.Sprite, {
     },
     // Gameをクリアーした時
     clear: function () {
+
         this.removeEventListener(Event.ENTER_FRAME, this.normal); // 一旦Playerのフレーム更新処理を削除
+
+        for(var i = 0; i < ENEMIES.length; i++) { // クリアしたら敵を削除
+            mainScene.stage.removeChild(ENEMIES[i]);
+        }
+
         // var isOnce = true;
         var tick = 1;
         var jump1 = 15;
