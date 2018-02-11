@@ -240,9 +240,13 @@ var MainScene = enchant.Class.create(enchant.Scene, {
             new Enemy2(400,SCREEN_HEIGHT-32-32),
             new Enemy1(900,SCREEN_HEIGHT-32-32-10),
             new Enemy2(1100,SCREEN_HEIGHT-32-32),
+            new Enemy2(1300,SCREEN_HEIGHT-32-32),
             new Enemy2(1400,SCREEN_HEIGHT-32-32),
+            new Enemy2(1450,SCREEN_HEIGHT-32-32),
+            new Enemy2(1650,SCREEN_HEIGHT-32-32),
             new Enemy1(1700,SCREEN_HEIGHT-32-32-10),
             new Enemy2(1800,SCREEN_HEIGHT-32-32),
+            new Enemy2(1900,SCREEN_HEIGHT-32-32),
             new Enemy2(2000,SCREEN_HEIGHT-32-32),
             new Enemy2(2300,SCREEN_HEIGHT-32-32),
             new Enemy1(2500,SCREEN_HEIGHT-32-32-10),
@@ -466,7 +470,7 @@ var Player = enchant.Class.create(enchant.Sprite, {
             var tick = 1;
             var isf = true;
             mainScene.stage.removeChild(mainScene.player);
-            
+
             death00.addEventListener(Event.ENTER_FRAME, function () {
 
                 if (isf && tick % 40 === 0) {
