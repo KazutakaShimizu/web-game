@@ -55,14 +55,12 @@ var CLEAR_BACKGROUND_IMAGE = "images/clear.png"
 
 var DEATH00_IMAGE = "images/death00.png";
 var DEATH01_IMAGE = "images/death01.png";
-var MESSAGE_IMAGE = "images/testmessage.png";
 var ENEMIES = [];
 
 var ASSETS = [
     PLAYER_IMAGE, MAP_IMAGE,
     ITEM_IMAGE, BACKGROUND_IMAGE,
-    MESSAGE_IMAGE, ENEMY_IMAGE,
-    DEATH00_IMAGE,DEATH01_IMAGE,
+    ENEMY_IMAGE, DEATH00_IMAGE,DEATH01_IMAGE,
     TITLE_BACKGROUND_IMAGE01,
     TITLE_BACKGROUND_IMAGE02,
     TITLE_BACKGROUND_IMAGE03,
@@ -242,18 +240,18 @@ var MainScene = enchant.Class.create(enchant.Scene, {
             new Enemy2(1100,SCREEN_HEIGHT-32-32),
             new Enemy2(1300,SCREEN_HEIGHT-32-32),
             new Enemy2(1400,SCREEN_HEIGHT-32-32),
-            new Enemy2(1450,SCREEN_HEIGHT-32-32),
-            new Enemy2(1650,SCREEN_HEIGHT-32-32),
+            new Enemy1(1450,SCREEN_HEIGHT-32-32-10),
+            new Enemy1(1650,SCREEN_HEIGHT-32-32-10),
             new Enemy1(1700,SCREEN_HEIGHT-32-32-10),
             new Enemy2(1800,SCREEN_HEIGHT-32-32),
-            new Enemy2(1900,SCREEN_HEIGHT-32-32),
-            new Enemy2(2000,SCREEN_HEIGHT-32-32),
+            new Enemy1(1900,SCREEN_HEIGHT-32-32-10),
+            new Enemy1(2000,SCREEN_HEIGHT-32-32-10),
             new Enemy2(2300,SCREEN_HEIGHT-32-32),
             new Enemy1(2500,SCREEN_HEIGHT-32-32-10),
             new Enemy1(3000,SCREEN_HEIGHT-32-32-10),
             new Enemy1(3100,SCREEN_HEIGHT-32-32-10),
-            new Enemy2(3200,SCREEN_HEIGHT-32-32),
-            new Enemy2(3500,SCREEN_HEIGHT-32-32),
+            new Enemy1(3200,SCREEN_HEIGHT-32-32-10),
+            new Enemy1(3500,SCREEN_HEIGHT-32-32),
             new Enemy2(3800,SCREEN_HEIGHT-32-32),
             new Enemy2(3900,SCREEN_HEIGHT-32-32)
         ]
