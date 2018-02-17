@@ -218,6 +218,9 @@ var MainScene = enchant.Class.create(enchant.Scene, {
         this.setupCoin();
         this.stage.addChild(this.player);
         this.addChild(this.stage);
+        var pad = new Pad();
+        pad.moveTo(530, 220);
+        this.addChild(pad);
         this.addChild(this.scoreLabel);
         this.addChild(this.itemLabel);
     },
